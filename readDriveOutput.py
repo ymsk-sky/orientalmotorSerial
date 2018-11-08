@@ -23,7 +23,9 @@ def readDriveOutputValue():
     time.sleep(0.02)    # 調整(クエリとレスポンスの間時間)
     result = client.read(size)
     # print(result)
-    print(''.join([r'{:02x} '.format(x) for x in result]))
+    r = ''.join([r'\x{:02x}'.format(x) for x in result]).split('\\x')
+    r.pop(0)
+    print(r)
 
 # -- setting methods --
 def setSerial():
