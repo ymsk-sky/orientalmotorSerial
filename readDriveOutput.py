@@ -20,9 +20,10 @@ def readDriveOutputValue():
     commando = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"  # レジスタアドレス(下位)
     #commando = b"\x01\x03\x00\x7e\x00\x02\xa4\x13"  # レジスタアドレス(上位から2つ)
     client.write(commando)
-    time.sleep(0.003)
+    time.sleep(0.02)    # 調整(クエリとレスポンスの間時間)
     result = client.read(size)
-    print(result)
+    # print(result)
+    print(''.join([r'{:02x} '.format(x) for x in result]))
 
 # -- setting methods --
 def setSerial():
