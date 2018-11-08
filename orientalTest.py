@@ -35,7 +35,7 @@ def setSerial():
     ser.parity = 'E'
     ser.timeout = 0.01
     ser.parity = serial.PARITY_EVEN
-    stopbits = serial.STOPBITS_ONE
+    ser.stopbits = serial.STOPBITS_ONE
 
 # get COM port name
 def getComPort():
