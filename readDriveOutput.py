@@ -4,20 +4,27 @@ import os
 import serial
 
 client = serial.Serial()
+size = 16
 
 def main():
     setSerial()
+
     client.open()
-    sendTrigger()
-    closeSerial()
-
-def sendTrigger():
-    cmd = b"\x01\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x21\x34\x00\x00\x07\xD0\x00\x00\x05\xDC\x00\x00\x05\xDC\x00\x00\x03\xE8\x00\x00\x00\x01\x1C\x08"
-    client.write(cmd)
-
-def closeSerial():
+    # -- 処理開始 --
+    readDriveOutputValue()
+    # -- 処理終了 --
     client.close()
 
+def readDriveOutputValue():
+    # commando = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
+    commando = b"\x01\x03\x00\x7e\x00\x02\xa4\x13"
+    client.write(commando)
+    result = client.read(size)
+    line = client.readline()
+    print(line)
+    print(result)
+
+# -- setting methods --
 def setSerial():
     client.port = getComPort()
     client.baudrate = 115200

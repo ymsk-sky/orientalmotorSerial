@@ -32,7 +32,6 @@ def setSerial():
     ser.port = getComPort()
     ser.baudrate = 115200
     ser.bytesize = 8
-    ser.parity = 'E'
     ser.timeout = 0.01
     ser.parity = serial.PARITY_EVEN
     ser.stopbits = serial.STOPBITS_ONE
