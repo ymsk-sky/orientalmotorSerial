@@ -1,18 +1,6 @@
 # -*- coding: utf-8 -*-
 
-print(hex(00))
-print("\x10")
-print(b"\x20")
-print(b"\x30")
-print(b"\x40")
-print(b"\x50")
-print(b"\x60")
-print(b"\x70")
-print(b"\x80")
-print(b"\x90")
-print(b"\xA0")
-print(b"\xB0")
-print(b"\xC0")
-print(b"\xD0")
-print(b"\xE0")
-print(b"\xF0")
+response = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
+
+print(type(response))
+print(response.hex())
