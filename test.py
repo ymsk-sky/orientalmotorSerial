@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# response = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
+crc = b"\xb5\xd2"
 
-crc = b"\x66"
+# 文字列に置き換える
+tmp = crc.hex()
+# 2文字(1バイトずつ)を入れ替える
+tmp = tmp[2:] + tmp[:2]
+# bytes型に変換
+re = bytes.fromhex(tmp)
 
 print(crc)
-
-tmp = crc.decode()
-print(tmp)
-crc = tmp.encode()
-
-print(crc)
-print(type(crc))
+print(re)

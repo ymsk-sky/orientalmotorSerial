@@ -7,9 +7,9 @@ def addCRC16(cmd):
     crc = makeCRC16(cmd)
     # エラーチェック値をクエリの末尾に追加する
     # 上位と下位を入れ替える
-    crc = transposeHigherLower(crc)
+    reversed = transposeHigherLower(crc)
     # エラーチェック値は下位→上位の順
-    cmd = cmd + crc
+    cmd = cmd + reversed
     return cmd
 
 def makeCRC16(cmd):
@@ -17,14 +17,17 @@ def makeCRC16(cmd):
     byte_list = toListOfByte(cmd)
     # CRC-16の計算
     for b in byte_list:
-        crc = b"\xb5\xd2"
+        crc = b"\xd2\xb5"
     return crc
 
 def transposeHigherLower(crc):
-    tmp = crc.decode()
-    tmp = tmp[1] + tmp[0]
-    crc = tmp.encode()
-    return crc
+    # 文字列に置き換える
+    tmp = crc.hex()
+    # 入れ替え処理
+    tmp = tmp[2:] + tmp[:2]
+    # byte型に変換（型をbyteに戻す）
+    re = bytes.fromhex(tmp)
+    return re
 
 def toListOfByte(cmd):
     # 文字列へ変換
