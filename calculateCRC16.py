@@ -13,11 +13,27 @@ def addCRC16(cmd):
     return cmd
 
 def makeCRC16(cmd):
-    # 1バイト毎のリストを作成
-    byte_list = toListOfByte(cmd)
-    # CRC-16の計算
-    for b in byte_list:
-        crc = b"\xd2\xb5"
+    # bytearrayへ変換
+    listo = bytearray(cmd)
+    # ***** CRC-16の計算 *****
+    crc_registor = 0xFFFF
+    for data_byte in listo:
+        # CRCレジスタとデータバイトのXOR
+        tmp = crc_registor ^ data_byte
+        # シフト回数を記憶
+        shift_num = 0
+        # シフトが 8回になるまで繰り返す
+        while(shift_num < 8):
+            if(tmp%2 == 1): # 桁あふれが1なら
+                tmp = tmp >> 1
+                shift_num += 1
+                tmp = 0xA001 ^ tmp
+            else:
+                tmp = tmp >> 1
+                shift_num += 1
+        crc_registor = tmp
+    crc = crc_registor.to_bytes(2, 'big')
+    # ***********************
     return crc
 
 def transposeHigherLower(crc):
@@ -28,13 +44,6 @@ def transposeHigherLower(crc):
     # byte型に変換（型をbyteに戻す）
     re = bytes.fromhex(tmp)
     return re
-
-def toListOfByte(cmd):
-    # 文字列へ変換
-    cmd_hex = cmd.hex()
-    # 2文字(1バイト)毎のリストに変換
-    byte_list = [cmd_hex[i: i+2] for i in range(0, len(cmd_hex), 2)]
-    return byte_list
 
 if __name__ == '__main__':
     commando = b"\x01\x03\x00\x7f\x00\x01"
