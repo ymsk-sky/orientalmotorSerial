@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# 文字列(str)へ一度変換してからCRC-16を計算する
-
+# コマンドの末尾にCRC-16計算結果を正しく追加してそのコマンドを返す
 def addCRC16(cmd):
     # CRC16でエラーチェック値を計算する
     crc = makeCRC16(cmd)
@@ -12,6 +11,7 @@ def addCRC16(cmd):
     cmd = cmd + reversed
     return cmd
 
+# CRC-16計算結果を返す
 def makeCRC16(cmd):
     # bytearrayへ変換
     listo = bytearray(cmd)
@@ -36,6 +36,7 @@ def makeCRC16(cmd):
     # ***********************
     return crc
 
+# 2つのbyteを入れ替える
 def transposeHigherLower(crc):
     # 文字列に置き換える
     tmp = crc.hex()
@@ -45,8 +46,9 @@ def transposeHigherLower(crc):
     re = bytes.fromhex(tmp)
     return re
 
+
 if __name__ == '__main__':
     commando = b"\x01\x03\x00\x7f\x00\x01"
-    ans = b"\xb5\xd2"
+    ans = commando + b"\xb5\xd2"
     commando = addCRC16(commando)
     print(commando)
