@@ -14,10 +14,10 @@ def addCRC16(cmd):
 # CRC-16計算結果を返す
 def makeCRC16(cmd):
     # ***** CRC-16の計算 *****
-    crc_registor = 0xFFFF
+    crc_register = 0xFFFF
     for data_byte in cmd:
         # CRCレジスタとデータバイトのXOR
-        tmp = crc_registor ^ data_byte
+        tmp = crc_register ^ data_byte
         # シフト回数を記憶
         shift_num = 0
         # シフトが 8回になるまで繰り返す
@@ -30,8 +30,8 @@ def makeCRC16(cmd):
             else:
                 tmp = tmp >> 1
                 shift_num += 1
-        crc_registor = tmp
-    crc = crc_registor.to_bytes(2, 'big')
+        crc_register = tmp
+    crc = crc_register.to_bytes(2, 'big')
     # ***********************
     return crc
 
