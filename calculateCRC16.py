@@ -13,18 +13,17 @@ def addCRC16(cmd):
 
 # CRC-16計算結果を返す
 def makeCRC16(cmd):
-    # bytearrayへ変換
-    listo = bytearray(cmd)
     # ***** CRC-16の計算 *****
     crc_registor = 0xFFFF
-    for data_byte in listo:
+    for data_byte in cmd:
         # CRCレジスタとデータバイトのXOR
         tmp = crc_registor ^ data_byte
         # シフト回数を記憶
         shift_num = 0
         # シフトが 8回になるまで繰り返す
         while(shift_num < 8):
-            if(tmp%2 == 1): # 桁あふれが1なら
+            # ビット演算(&1)で1桁めのビットを特定
+            if(tmp&1 == 1): # 桁あふれが1なら
                 tmp = tmp >> 1
                 shift_num += 1
                 tmp = 0xA001 ^ tmp
