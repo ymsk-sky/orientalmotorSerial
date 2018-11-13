@@ -7,7 +7,7 @@ WRITE_REGISTERS = 3
 READ_WRITE_REGISTERS = 4
 
 
-functionCode = [b"\x03", b"\x06", b"\x08", b"\x10", b"\x17"]
+functionCodeData = [b"\x03", b"\x06", b"\x08", b"\x10", b"\x17"]
 
 def createSlaveAddress():
     # モーター1台のため未実装
@@ -16,16 +16,21 @@ def createSlaveAddress():
     return b"\x01"
 
 def createFunctionCode(f):
-    return functionCode[f]
+    return functionCodeData[f]
 
-def createData():
-    # p.288
-    pass
+def createData(fc):
+    if(fc == READ_REGISTER) {
+        ### リモートI/Oアクセス
+        # レジスタアドレス007f, レジスタ数0001
+        return b"\x00\x7f\x00\x01"
+    }elif(fc == WRITE_REGISTERS) {
+        ### ダイレクトデータ運転
+    }
 
 def test():
     sa = createSlaveAddress()
     fc = createFunctionCode(READ_REGISTER)
-    d = createData()
+    d = createData(READ_REGISTER)
     query_without_crc = sa + fc + d
     # 結果を表示
     print(query_without_crc)
