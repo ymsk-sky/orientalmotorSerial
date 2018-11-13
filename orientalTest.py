@@ -11,10 +11,10 @@ def main():
     print(ser.name)
 
     ser.open()
-    commando(10)
+    command(10)
     ser.close()
 
-def commando(cmd):
+def command(cmd):
     command = getCommand(cmd)
     ser.write(command)
 

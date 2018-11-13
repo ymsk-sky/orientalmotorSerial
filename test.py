@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# commando = b"\x01\x03\x00\x7f\x00\x01"
-commando = b"\x01\x03\x02\xaf\x42\x45\x85"
+# command = b"\x01\x03\x00\x7f\x00\x01"
+command = b"\x01\x03\x02\xaf\x42\x45\x85"
+drive_output = (command[3] << 8) + command[4]
 
-print(bin(commando[3]))
-print(bin(commando[4]))
-print(bin((commando[3] << 8) + commando[4]))
+print(drive_output)
+print(bin(drive_output))
+print("")
 
-
-#print(listo[3].to_bytes(1, 'big'))
-#print(listo[3].to_bytes(1, 'little'))
-
-# print(data_byte.to_bytes(1, 'big'))
-# print(format(0xFFFF, '016b'))
+for x in range(16):
+    ans = (drive_output >> x) & 1
+    print(ans)

@@ -45,9 +45,16 @@ def transposeHigherLower(crc):
     re = bytes.fromhex(tmp)
     return re
 
+def test():
+    # データチェック以外のクエリ
+    command = b"\x01\x03\x00\x7f\x00\x01"
+    # 答え（手動入力）
+    ans = command + b"\xb5\xd2"
+    # CRC-16/Modbusを計算してクエリ作成
+    command = addCRC16(command)
+    # 結果を表示
+    print(command)
+    print(ans)
 
 if __name__ == '__main__':
-    commando = b"\x01\x03\x00\x7f\x00\x01"
-    ans = commando + b"\xb5\xd2"
-    commando = addCRC16(commando)
-    print(commando)
+    test()
