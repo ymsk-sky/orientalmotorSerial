@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 # スレーブアドレス設定
-BROADCAST        = 0
-ANKLE_R          = 1
-ANKLE_L          = 2
+BROADCAST = 0
+ANKLE_R = 1
+ANKLE_L = 2
 VERTICAL_SWING_R = 3
 VERTICAL_SWING_L = 4
-LATERAL_SWING_R  = 5
-LATERAL_SWING_L  = 6
+LATERAL_SWING_R = 5
+LATERAL_SWING_L = 6
 
 slaveAddressData = [b"\x00", # ブロードキャスト
                     b"\x01", # 足首 - 右
@@ -18,10 +18,10 @@ slaveAddressData = [b"\x00", # ブロードキャスト
                     b"\x06"] # 足振り左右 - 左
 
 # ファンクションコード一覧
-READ_REGISTER        = 0
-WRITE_REGISTER       = 1
-DIGNOSE              = 2
-WRITE_REGISTERS      = 3
+READ_REGISTER = 0
+WRITE_REGISTER = 1
+DIGNOSE = 2
+WRITE_REGISTERS = 3
 READ_WRITE_REGISTERS = 4
 
 functionCodeData = [b"\x03", # 保持レジスタからの読み出し
