@@ -1,13 +1,34 @@
 # -*- coding: utf-8 -*-
 
-READ_REGISTER = 0
-WRITE_REGISTER = 1
-DIGNOSE = 2
-WRITE_REGISTERS = 3
+# スレーブアドレス設定
+BROADCAST        = 0
+ANKLE_R          = 1
+ANKLE_L          = 2
+VERTICAL_SWING_R = 3
+VERTICAL_SWING_L = 4
+LATERAL_SWING_R  = 5
+LATERAL_SWING_L  = 6
+
+slaveAddressData = [b"\x00", # ブロードキャスト
+                    b"\x01", # 足首 - 右
+                    b"\x02", # 足首 - 左
+                    b"\x03", # 足振り前後 - 右
+                    b"\x04", # 足振り前後 - 左
+                    b"\x05", # 足振り左右 - 右
+                    b"\x06"] # 足振り左右 - 左
+
+# ファンクションコード一覧
+READ_REGISTER        = 0
+WRITE_REGISTER       = 1
+DIGNOSE              = 2
+WRITE_REGISTERS      = 3
 READ_WRITE_REGISTERS = 4
 
-
-functionCodeData = [b"\x03", b"\x06", b"\x08", b"\x10", b"\x17"]
+functionCodeData = [b"\x03", # 保持レジスタからの読み出し
+                    b"\x06", # 保持レジスタへの書き込み
+                    b"\x08", # 診断
+                    b"\x10", # 複数の保持レジスタへの書き込み
+                    b"\x17"] # 複数の保持レジスタの読み出し/書き込み
 
 def createSlaveAddress():
     # モーター1台のため未実装
@@ -18,7 +39,7 @@ def createSlaveAddress():
 def createFunctionCode(f):
     return functionCodeData[f]
 
-def createData(fc, me=0, pos=0, sp=0, strt=0, stp=0):
+def createData(fc, meth=0, pos=0, sp=0, strt=0, stp=0):
     if(fc == functionCodeData[READ_REGISTER]):
         ### リモートI/Oアクセス
         # レジスタアドレス007f, レジスタ数0001
@@ -34,7 +55,7 @@ def createData(fc, me=0, pos=0, sp=0, strt=0, stp=0):
         # 運転データNo.
         operation_data_no = b"\x00\x00\x00\x00"
         # 方式
-        method = me.to_bytes(4, "big")
+        method = meth.to_bytes(4, "big")
         # 位置
         position = pos.to_bytes(4, "big")
         # 速度
@@ -55,9 +76,9 @@ def createData(fc, me=0, pos=0, sp=0, strt=0, stp=0):
         return result
 
 def test():
-    sa = createSlaveAddress()
+    sa = createSlaveAddress(ANKLE_R)
     fc = createFunctionCode(WRITE_REGISTERS)
-    d = createData(fc, me=2, pos=8500, sp=2000, strt=1500, stp=1500)
+    d = createData(fc, meth=2, pos=8500, sp=2000, strt=1500, stp=1500)
     query_without_crc = sa + fc + d
     # 結果を表示
     print(query_without_crc)
