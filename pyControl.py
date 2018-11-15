@@ -68,14 +68,17 @@ class QueryGeneration():
                                b"\x17"] # 複数の保持レジスタの読み出し/書き込み
 
     def create_slave_address(self):
+        ##### スレーブアドレスを返す
         # 未実装：モーター複数台になったら変更
         return b"\x01"
 
     def create_function_code(self, function_code):
+        ##### ファンクションコードを返す
         return self.function_code_data_list[function_code]
 
     def create_data(self, function_code, method=0, position=0, speed=0,
                     start_shift_rate=0, stop_rate=0):
+        ##### データを返す
         if(function_code == self.READ_REGISTER):
             ##### リモートI/Oアクセス
             # レジスタアドレス0007f, レジスタ数0001
@@ -107,8 +110,17 @@ class QueryGeneration():
             # データ完成
             return result
 
+    def create_crc16(self, command):
+        ##### CRC-16方式によるエラーチェックを返す
+        # CRC-16を計算
+        crc = self.calculate_crc16(command)
+        # 上位と下位を入れ替える
+        reversed = self.transpose_higher_lower(crc)
+        return reversed
+
+    ### TODO: 使いづらい返り値なので後で消す ###
     def add_crc16(self, command):
-        ##### CRC-16方式によるエラーチェック計算
+        ##### CRC-16方式によるエラーチェックを加えたクエリを返す
         # CRC-16を計算
         crc = self.calculate_crc16(command)
         # 上位と下位を入れ替える
@@ -190,7 +202,7 @@ def main():
     query = query_gen.create_slave_address()
     query += query_gen.create_function_code(action)
     query += query_gen.create_data(action)
-    query = query_gen.add_crc16(query)
+    query += query_gen.create_crc16(query)
     # 確認：READY=1, MOVE=0, ALM_A=0
     st = Status()
     while(True):
@@ -220,7 +232,7 @@ def main():
                                        speed=2000,
                                        start_shift_rate=1500,
                                        stop_rate=1500)
-        query = query_gen.add_crc16(query)
+        query += query_gen.create_crc16(query)
         ser.write_serial(query)
         time.sleep(0.02)
         response = ser.read_serial(16)
@@ -242,7 +254,6 @@ def main():
             # READYが1になるまで待機
             move = st.get_one_status(response, st.MOVE)
             time.sleep(0.02)
-            print(move)
             if(move == 0):
                 time.sleep(2)
                 break

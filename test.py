@@ -7,6 +7,13 @@ import time
 client = serial.Serial()
 size = 16
 
+def test():
+    for x in range(1, 10):
+        for y in range(1, 10):
+            print("{0:2d}".format(x*y), " ", end="")
+        print("")
+    pass
+
 def main():
     set_serial()
     client.open()
@@ -58,4 +65,5 @@ def get_com_port():
     return
 
 if __name__ == "__main__":
-    main()
+    #main()
+    test()
