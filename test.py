@@ -14,17 +14,17 @@ def test():
         print("")
     pass
 
-def main():
+def io_test():
     set_serial()
     client.open()
     ##### direct data operation #####
-    for _ in range(3):
-        direct = b"\x01\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x21\x34\x00\x00\x07\xd0\x00\x00\x05\xdc\x00\x00\x05\xdc\x00\x00\x03\xe8\x00\x00\x00\x01\x1c\x08"
-        client.write(direct)
-        standby()
-        response = client.read(size)
-        print(response)
-        standby()
+    for _ in range(1):
+        # direct = b"\x01\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x21\x34\x00\x00\x07\xd0\x00\x00\x05\xdc\x00\x00\x05\xdc\x00\x00\x03\xe8\x00\x00\x00\x01\x1c\x08"
+        # client.write(direct)
+        # standby()
+        # response = client.read(size)
+        # print(response)
+        # standby()
         ##### remote I/O accessing #####
         command = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
         while(True):
@@ -32,8 +32,9 @@ def main():
             standby()
             response = client.read(size)
             move = print_move_status(response)
+            print("{0:016d}".format(int(bin(((response[3] << 8) + response[4]))[2:])))
             standby()
-            if(move == 0):
+            if(move == 1):
                 break
         #####
     client.close()
@@ -42,9 +43,11 @@ def print_move_status(response):
     driver_output = (response[3] << 8) + response[4]
     move = (driver_output >> 13) & 1
     if(move == 1):
-        print("Moving")
+        pass
+        #print("Moving")
     elif(move == 0):
-        print("NOT Moving: stopping")
+        pass
+        #print("NOT Moving: stopping")
     return move
 
 def standby():
@@ -64,6 +67,10 @@ def get_com_port():
             return '/dev/' + file
     return
 
+def main():
+    pass
+
 if __name__ == "__main__":
-    #main()
-    test()
+    main()
+    # io_test()
+    # test()

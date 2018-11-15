@@ -7,6 +7,7 @@ import serial
 class SerialCommunication():
     __client = serial.Serial()
 
+    # シリアル設定
     def set_serial(self, br=115200, bs=8, to=0.01):
         self.__client.port = self.get_com_port()
         self.__client.baudrate = br
@@ -15,22 +16,27 @@ class SerialCommunication():
         self.__client.parity = serial.PARITY_EVEN
         self.__client.stopbits = serial.STOPBITS_ONE
 
+    # 接続されているCOMポートを探す
     def get_com_port(self):
         for file in os.listdir('/dev'):
             if 'tty.usbserial' in file:
                 return '/dev/' + file
         return
 
+    # クエリを送る
     def write_serial(self, query):
         self.__client.write(query)
         return query
 
+    # レスポンスを読む
     def read_serial(self, size):
         return self.__client.read(size)
 
+    # ポートのオープン
     def open_serial(self):
         self.__client.open()
 
+    # ポートのクローズ
     def close_serial(self):
         self.__client.close()
 
@@ -218,7 +224,7 @@ def main():
         if(move == 0):
             break
     ##################################################
-    ##                メインループ                    ##
+    #####             メインループ                 #####
     ##################################################
     for _ in range(3):
         ##### ダイレクトデータ運転 #####
@@ -226,6 +232,7 @@ def main():
         action = query_gen.WRITE_REGISTERS
         query = query_gen.create_slave_address()
         query += query_gen.create_function_code(action)
+        # 各コマンドの詳細はマニュアルp.292-293
         query += query_gen.create_data(action,
                                        method=2,
                                        position=8500,
@@ -233,6 +240,7 @@ def main():
                                        start_shift_rate=1500,
                                        stop_rate=1500)
         query += query_gen.create_crc16(query)
+        # クエリを送る
         ser.write_serial(query)
         time.sleep(0.02)
         response = ser.read_serial(16)
