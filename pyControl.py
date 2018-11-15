@@ -224,7 +224,7 @@ def main():
         ser.write_serial(query)
         time.sleep(0.02)
         response = ser.read_serial(16)
-        time.sleep(1)
+        time.sleep(0.02)
         ##### 状態確認 #####
         # クエリ作成：MOVE=0になるまでループ
         action = query_gen.READ_REGISTER
@@ -244,6 +244,7 @@ def main():
             time.sleep(0.02)
             print(move)
             if(move == 0):
+                time.sleep(2)
                 break
     ##### 接続終了 #####
     ser.close_serial()
