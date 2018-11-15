@@ -196,6 +196,10 @@ class Status():
         result = (driver_output >> bit_number) & 1
         return result
 
+def standby(term=0.02):
+    # クエリとレスポンスの間隔=0.02秒(20ms)
+    time.sleep(term)
+
 def main():
     ##### シリアル接続 #####
     ser = SerialCommunication()
@@ -215,12 +219,12 @@ def main():
         # クエリ送信
         ser.write_serial(query)
         # 一定時間待機
-        time.sleep(0.02)
+        standby()
         # レスポンスを読む
         response = ser.read_serial(16)
         # READYが1になるまで待機
         move = st.get_one_status(response, st.MOVE)
-        time.sleep(0.02)
+        standby()
         if(move == 0):
             break
     ##################################################
@@ -242,9 +246,9 @@ def main():
         query += query_gen.create_crc16(query)
         # クエリを送る
         ser.write_serial(query)
-        time.sleep(0.02)
+        standby()
         response = ser.read_serial(16)
-        time.sleep(0.02)
+        standby()
         ##### 状態確認 #####
         # クエリ作成：MOVE=0になるまでループ
         action = query_gen.READ_REGISTER
@@ -256,12 +260,12 @@ def main():
             # クエリ送信
             ser.write_serial(query)
             # 一定時間待機
-            time.sleep(0.02)
+            standby()
             # レスポンスを読む
             response = ser.read_serial(16)
             # READYが1になるまで待機
             move = st.get_one_status(response, st.MOVE)
-            time.sleep(0.02)
+            standby()
             if(move == 0):
                 time.sleep(2)
                 break
