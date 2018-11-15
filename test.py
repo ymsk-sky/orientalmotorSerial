@@ -3,16 +3,26 @@
 import os
 import serial
 import time
+# import threading
+import concurrent.futures
 
 client = serial.Serial()
 size = 16
 
 def test():
-    for x in range(1, 10):
-        for y in range(1, 10):
-            print("{0:2d}".format(x*y), " ", end="")
-        print("")
-    pass
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+    executor.submit(func1)
+    executor.submit(func2)
+
+def func1():
+    for _ in range(100):
+        print("func1")
+    print("func1 is finished")
+
+def func2():
+    for _ in range(100):
+        print("func2")
+    print("func2 is finished")
 
 def io_test():
     set_serial()
@@ -71,6 +81,6 @@ def main():
     pass
 
 if __name__ == "__main__":
-    main()
+    # main()
     # io_test()
-    # test()
+    test()
