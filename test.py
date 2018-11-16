@@ -10,9 +10,10 @@ client = serial.Serial()
 size = 16
 
 def test():
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
     executor.submit(func1)
     executor.submit(func2)
+    executor.submit(func3)
 
 def func1():
     for _ in range(100):
@@ -23,6 +24,11 @@ def func2():
     for _ in range(100):
         print("func2")
     print("func2 is finished")
+
+def func3():
+    for _ in range(100):
+        print("func3")
+    print("func3 is finished")
 
 def io_test():
     set_serial()

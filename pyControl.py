@@ -205,6 +205,7 @@ def main():
     ser = SerialCommunication()
     ser.set_serial()
     ser.open_serial()
+    print("##### start serial #####")
     ##### 初期状態確認 #####
     # クエリ作成
     query_gen = QueryGeneration()
@@ -230,7 +231,7 @@ def main():
     ##################################################
     #####             メインループ                 #####
     ##################################################
-    for _ in range(3):
+    for _ in range(5):
         ##### ダイレクトデータ運転 #####
         # クエリ作成
         action = query_gen.WRITE_REGISTERS
@@ -239,10 +240,10 @@ def main():
         # 各コマンドの詳細はマニュアルp.292-293
         query += query_gen.create_data(action,
                                        method=2,
-                                       position=8500,
-                                       speed=2000,
-                                       start_shift_rate=1500,
-                                       stop_rate=1500)
+                                       position=5000,
+                                       speed=10000,
+                                       start_shift_rate=1000000,
+                                       stop_rate=1000000)
         query += query_gen.create_crc16(query)
         # クエリを送る
         ser.write_serial(query)
@@ -265,9 +266,11 @@ def main():
             response = ser.read_serial(16)
             # READYが1になるまで待機
             move = st.get_one_status(response, st.MOVE)
+            print("moving")
             standby()
             if(move == 0):
-                time.sleep(2)
+                print("stop")
+                time.sleep(1)
                 break
     ##### 接続終了 #####
     ser.close_serial()
