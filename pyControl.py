@@ -200,6 +200,15 @@ def standby(term=0.02):
     # クエリとレスポンスの間隔=0.02秒(20ms)
     time.sleep(term)
 
+def serial_init():
+    pass
+
+def direct_data():
+    pass
+
+def remote_io():
+    pass
+
 def main():
     ##### シリアル接続 #####
     ser = SerialCommunication()

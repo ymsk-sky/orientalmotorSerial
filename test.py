@@ -1,36 +1,45 @@
 # -*- coding: utf-8 -*-
 
-import time
-import concurrent.futures
+class Dummyserial():
+    def __init__(self):
+        print("Dummyserial --開始")
 
-a = 10
+    port = 0
+    baudrate = 0
 
-def func1():
-    global a
-    while(True):
-        print(a)
-        time.sleep(0.1)
+    def write(self, cmd):
+        print("write:", cmd)
 
-def func2():
-    global a
-    while(True):
-        a += 1
-        print("func2: increment a")
-        time.sleep(1)
+class Test():
+    #__client = Dummyserial()
+
+    int_1 = 1
+    int_2 = 2
+
+    str_abc = "abc"
+    str_xyz = "xyz"
+
+    def serial_write(self, cmd):
+        self.__client.write(cmd)
+
+def func(t):
+    t.serial_write("func write")
 
 def main():
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-    executor.submit(func1)
-    executor.submit(func2)
+    t = Test()
+    t.serial_write("command")
 
-def test():
-    val = 2147483648
-    val2 = 2147483648
-    print(val)
-    print(type(val))
-    print(val2)
-    print(type(val2))
+    func(t)
+
+class U():
+    def printP(self):
+        print("P")
+
+class T():
+    def main2(self):
+        print("main")
 
 if __name__ == "__main__":
     # main()
-    test()
+    t = T()
+    t.main2()
