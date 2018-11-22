@@ -1,45 +1,43 @@
 # -*- coding: utf-8 -*-
 
-class Dummyserial():
+class DummySerial():
     def __init__(self):
-        print("Dummyserial --開始")
+        print("init dummy serial")
 
-    port = 0
-    baudrate = 0
+    def __del__(self):
+        print("del dummy serial")
 
-    def write(self, cmd):
-        print("write:", cmd)
+    __serial = 0
+    __value = 0
 
-class Test():
-    #__client = Dummyserial()
+    def set_serial(self, ser):
+        self.__serial = ser
 
-    int_1 = 1
-    int_2 = 2
+    def get_serial(self):
+        return self.__serial
 
-    str_abc = "abc"
-    str_xyz = "xyz"
+    def print_serial(self):
+        print(self.__serial)
 
-    def serial_write(self, cmd):
-        self.__client.write(cmd)
-
-def func(t):
-    t.serial_write("func write")
+def setting_serial(ser):
+    ser.set_serial(100)
+    print("set serial")
+    print("ID-02:", id(ser))
 
 def main():
-    t = Test()
-    t.serial_write("command")
+    print("-----before-----")
+    ser = DummySerial()
+    print("ID-01:", id(ser))
+    print("-----after-----")
+    setting_serial(ser)
+    result = ser.get_serial()
+    print(result)
+    print("ID-03:", id(ser))
 
-    func(t)
+    for x in range(10):
+        pass
 
-class U():
-    def printP(self):
-        print("P")
-
-class T():
-    def main2(self):
-        print("main")
+    print("fin")
 
 if __name__ == "__main__":
-    # main()
-    t = T()
-    t.main2()
+    main()

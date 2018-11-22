@@ -4,6 +4,8 @@ import os
 import time
 import serial
 
+import parameter
+
 class SerialCommunication():
     __client = serial.Serial()
 
@@ -200,21 +202,21 @@ def standby(term=0.02):
     # クエリとレスポンスの間隔=0.02秒(20ms)
     time.sleep(term)
 
-def serial_init():
-    pass
+def serial_init(ser):
+    ser.set_serial()
+    ser.open_serial()
+    print("##### START SERIAL #####")
 
 def direct_data():
     pass
 
-def remote_io():
+def remote_io(query_gen):
     pass
 
 def main():
     ##### シリアル接続 #####
     ser = SerialCommunication()
-    ser.set_serial()
-    ser.open_serial()
-    print("##### start serial #####")
+    serial_init(ser)
     ##### 初期状態確認 #####
     # クエリ作成
     query_gen = QueryGeneration()

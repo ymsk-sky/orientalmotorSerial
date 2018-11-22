@@ -10,7 +10,7 @@ DATA_NO_MAX = 255
 # 設定なし
 NO_SETTING = 0
 # 絶対位置決め
-ABSOLUTE_POSITION =1
+ABSOLUTE_POSITION = 1
 # 相対位置決め（指令位置基準）
 RELATIVE_POSITION_BASED_ON_ORDER_POSITION = 2
 # 相対位置決め（検出位置基準）
