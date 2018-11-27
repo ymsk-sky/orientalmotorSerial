@@ -7,7 +7,7 @@ class DummySerial():
     def __init__(self):
         pass
 
-    def set_serial(self, p="", b=0, s=0):
+    def set_serial(self, p="", b=9600, s=8):
         self.__serial["port"] = p
         self.__serial["baudrate"] = b
         self.__serial["bytesize"] = s
@@ -41,10 +41,12 @@ class DummySerial():
         print(self.__serial)
 
 class DriverSerial(DummySerial):
-    pass
+    def __init__(self):
+        pass
 
 class SensorSerial(DummySerial):
-    pass
+    def __init__(self):
+        pass
 
 class Main():
     def main(self):
@@ -54,6 +56,8 @@ class Main():
         sensor.open_serial()
         ##### 処理 - 開始 #####
         # 初期設定
+        driver.set_serial(p="usbserial/driver_port", b=115200, s=8)
+        sensor.set_serial(p="usbserial/sensor_port", b=19200, s=8)
         # ループ
         while(True):
             break
