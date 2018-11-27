@@ -10,18 +10,24 @@ class SerialCommunication():
     __client = serial.Serial()
 
     # シリアル設定
-    def set_serial(self, br=115200, bs=8, to=0.01):
-        self.__client.port = self.get_com_port()
+    def set_serial(self, pt='', br=115200, bs=8, to=0.01):
+        self.__client.port = self.get_com_port(pt)
         self.__client.baudrate = br
         self.__client.bytesize = bs
         self.__client.timeout = to
-        self.__client.parity = serial.PARITY_EVEN
-        self.__client.stopbits = serial.STOPBITS_ONE
+        if(pt == 'MotorDriver'):
+            self.__client.parity = serial.PARITY_EVEN
+            self.__client.stopbits = serial.STOPBITS_ONE
 
     # 接続されているCOMポートを探す
-    def get_com_port(self):
+    def get_com_port(self, pt):
+        if(pt == 'MotorDriver'):
+            pt = 'tty.usbserial'
+        elif(pt == 'Arduino'):
+            pt = 'tty.usbmodem'
         for file in os.listdir('/dev'):
-            if 'tty.usbserial' in file:
+            if pt in file:
+                print(file)
                 return '/dev/' + file
         return
 
@@ -202,10 +208,14 @@ def standby(term=0.02):
     # クエリとレスポンスの間隔=0.02秒(20ms)
     time.sleep(term)
 
-def serial_init(ser):
-    ser.set_serial()
-    ser.open_serial()
-    print("##### START SERIAL #####")
+def serial_init(se, pt='', br=115200, bs=8, to=0.01):
+    se.set_serial(pt, br, bs, to)
+    try:
+        se.open_serial()
+    except:
+        print("already opened", pt)
+
+    print("##### START SERIAL", pt, "#####")
 
 def direct_data():
     pass
@@ -213,10 +223,19 @@ def direct_data():
 def remote_io(query_gen):
     pass
 
+def get_value(arduino):
+    raw_val = arduino.read_serial(1)
+    val = int.from_bytes(raw_val, 'big')
+    # val is from 0(20) to 255
+    return val
+
 def main():
+    ##### Arduino接続 #####
+    ard = SerialCommunication()
+    serial_init(ard, pt='Arduino', br=19200, to=None)
     ##### シリアル接続 #####
     ser = SerialCommunication()
-    serial_init(ser)
+    serial_init(ser, pt='MotorDriver')
     ##### 初期状態確認 #####
     # クエリ作成
     query_gen = QueryGeneration()
@@ -248,10 +267,14 @@ def main():
         action = query_gen.WRITE_REGISTERS
         query = query_gen.create_slave_address()
         query += query_gen.create_function_code(action)
+        ### センサ値によってpositionを変更
+        val = get_value(ard)
+        p = val * 40    # 5000付近の値にスケーリング
+        print(p)
         # 各コマンドの詳細はマニュアルp.292-293
         query += query_gen.create_data(action,
                                        method=2,
-                                       position=5000,
+                                       position=p,
                                        speed=10000,
                                        start_shift_rate=1000000,
                                        stop_rate=1000000)
@@ -284,6 +307,7 @@ def main():
                 time.sleep(1)
                 break
     ##### 接続終了 #####
+    ard.close_serial()
     ser.close_serial()
     print("##### closed serial #####")
 
