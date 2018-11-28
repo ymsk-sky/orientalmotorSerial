@@ -25,7 +25,7 @@ class SerialCommunication():
     def get_port(self, port_type):
         if(port_type == 'MotorDriver'):
             port = 'tty.usbserial'
-        if(port_type == 'Arduino'):
+        elif(port_type == 'Arduino'):
             port = 'tty.usbmodem'
         else:
             print("cannot use port type")
@@ -42,6 +42,7 @@ class SerialCommunication():
         return client.read(size)
 
     def open_serial(self, client):
+        print("### OPEN", client.port, "###")
         client.open()
 
     def close_serial(self, client):
@@ -111,50 +112,50 @@ class QueryGeneration():
             # データ完成
             return result
 
-        # エラーチェックを返す
-        def create_error_check(self, command):
-            # CRC16/Modbusを計算する
-            crc = self.calculate_crc16(command)
-            # 上位と下位を入れ替える
-            reversed = self.transpose_higher_lower(crc)
-            return reversed
+    # エラーチェックを返す
+    def create_error_check(self, command):
+        # CRC16/Modbusを計算する
+        crc = self.calculate_crc16(command)
+        # 上位と下位を入れ替える
+        reversed = self.transpose_higher_lower(crc)
+        return reversed
 
-        # CRC16/Modbusを計算し返す
-        ### リファクタリングプログラム有（Qiita参照）
-        def calculate_crc16(self, command):
-            # CRCレジスタ値を初期化
-            crc_register = 0xFFFF
-            for data_byte in command:
-                # CRCレジスタとデータバイトの排他的論理和(XOR)
-                tmp = crc_register ^ data_byte
-                # シフト回数を記憶
-                shift_number = 0
-                # シフトが8回になるまで繰り返す
-                while(shift_number > 8):
-                    # ビット演算(&1)によるマスクで1桁目のビットを特定する
-                    if(tmp & 1 == 1):
-                        tmp = tmp >> 1
-                        shift_number += 1
-                        # A001htのXOR
-                        tmp = 0xA001 ^ tmp
-                    else:
-                        tmp = tmp >> 1
-                        shift_number += 1
-                # CRCレジスタを更新する
-                crc_register = tmp
-            # 計算結果をbytes型へ変換する
-            crc = crc_register.to_bytes(2, "big")
-            return crc
+    # CRC16/Modbusを計算し返す
+    ### リファクタリングプログラム有（Qiita参照）
+    def calculate_crc16(self, command):
+        # CRCレジスタ値を初期化
+        crc_register = 0xFFFF
+        for data_byte in command:
+            # CRCレジスタとデータバイトの排他的論理和(XOR)
+            tmp = crc_register ^ data_byte
+            # シフト回数を記憶
+            shift_number = 0
+            # シフトが8回になるまで繰り返す
+            while(shift_number < 8):
+                # ビット演算(&1)によるマスクで1桁目のビットを特定する
+                if(tmp & 1 == 1):
+                    tmp = tmp >> 1
+                    shift_number += 1
+                    # A001htのXOR
+                    tmp = 0xA001 ^ tmp
+                else:
+                    tmp = tmp >> 1
+                    shift_number += 1
+            # CRCレジスタを更新する
+            crc_register = tmp
+        # 計算結果をbytes型へ変換する
+        crc = crc_register.to_bytes(2, "big")
+        return crc
 
-        # 上位と下位を入れ替えて返す
-        def transpose_higher_lower(self, crc):
-            # 文字列に置き換える
-            tmp = crc.hex()
-            # 文字列の入れ替え処理
-            tmp = tmp[2:] + tmp[:2]
-            # byts型に変換（bytes型へ戻す）
-            result = bytes.fromhex(tmp)
-            return result
+    # 上位と下位を入れ替えて返す
+    def transpose_higher_lower(self, crc):
+        # 文字列に置き換える
+        tmp = crc.hex()
+        # 文字列の入れ替え処理
+        tmp = tmp[2:] + tmp[:2]
+        # byts型に変換（bytes型へ戻す）
+        result = bytes.fromhex(tmp)
+        return result
 
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
@@ -185,13 +186,13 @@ def get_one_status(response, bit_number):
     return result
 
 def standby(term=0.02):
-    time.sleep(term)
+    sleep(term)
 
 def makequery_remote_io_access(qg, action):
     query = qg.create_slave_address()
     query += qg.create_function_code(action)
     query += qg.create_data(action)
-    query += qg.create_crc16(query)
+    query += qg.create_error_check(query)
     return query
 
 def makequery_direct_data_operation(qg, action):
@@ -215,6 +216,7 @@ def main():
     ### ドライバ状態確認
     function_data = READ_REGISTER
     query = makequery_remote_io_access(qg, function_data)
+    print(query)
     # READY状態(READY=1)になるまで繰り返す
     while(True):
         # クエリ送信
@@ -223,6 +225,7 @@ def main():
         standby()
         # レスポンスを読む
         response = sc.read_serial(driver, size=16)
+        print(response)
         # リモートI/OのREADY状態を確認する
         ready = get_one_status(response, OutputStatus.READY)
         # 一定時間待機
@@ -231,14 +234,17 @@ def main():
             # 準備完了なら準備ループを抜ける
             break
     # *** ループ開始 ***
-    for _ in range(3):
+    for _ in range(300):
         print("for loop")
-        delay(1)
+        standby()
         ### センサ値取得
+        # buffer詰まってる？
+        raw_value = sc.read_serial(arduino, 1)
+        value = int.from_bytes(raw_value, 'big')
+        print(value)
         ### クエリ作成
         ### モーター動作(ダイレクトデータ運転)
         ### レスポンス確認
-        break
     # *** ループ終了 ***
     print("fin")
 

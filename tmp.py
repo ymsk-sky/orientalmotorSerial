@@ -1,51 +1,32 @@
 # -*- coding: utf-8 -*-
 
 import serial
-import serial.tools.list_ports
-import os
 
-def com_port():
-    devices = serial.tools.list_ports.comports()
-    for device in devices:
-        if("usbmodem" in device[0]):
-            print(device[0])
-            return device[0]
+class Test():
+    def set_serial(self, client, a):
+        if(a == 1):
+            client.port = "/dev/tty.usbmodem1421"
+            client.baudrate = 19200
+        elif(a == 2):
+            client.port = "/dev/tty.usbserial-FT1GOG9N"
+            client.baudrate = 115200
+            client.timeout = 0.01
+            client.parity= 'N'
 
-def com_port2():
-    for file in os.listdir('/dev'):
-        if "usbmodem" in file:
-            print(file)
-            return '/dev/' + file
-    return
+    def open_serial(self, client):
+        client.open()
 
 def main():
-    client = serial.Serial()
-    client.port = com_port2()
-    client.baudrate = 19200
-    client.bytesize = 8
-    client.timeout = None
-    client.open()
+    t = Test()
 
-    a = client.read()
-    b = int.from_bytes(a, 'big')
-    print(b)
+    client1 = serial.Serial()
+    client2 = serial.Serial()
 
-    client.close()
+    t.set_serial(client1, 1)
+    t.open_serial(client1)
 
-class A():
-    v = 0
-    def __init__(self, v):
-        self.v = v
-
-def test():
-    a1 = A(1)
-    a2 = A(2)
-
-    print(a1.v, id(a1.v))
-    a1.v = 5
-    print(a1.v, id(a1.v))
-    print(a2.v, id(a2.v))
+    t.set_serial(client2, 2)
+    t.open_serial(client2)
 
 if __name__ == "__main__":
-    # main()
-    test()
+    main()
