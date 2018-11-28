@@ -156,9 +156,46 @@ class QueryGeneration():
             result = bytes.fromhex(tmp)
             return result
 
+class OutputStatus():
+    # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
+    M0_R = 0        # R-OUT0
+    M1_R = 1        # R-OUT1
+    M2_R = 2        # R-OUT2
+    START_R = 3     # R-OUT3
+    HOME_END = 4    # R-OUT4
+    READY = 5       # R-OUT5
+    INFO = 6        # R-OUT6
+    ALM_A = 7       # R-OUT7
+    SYS_BSY = 8     # R-OUT8
+    AREA0 = 9       # R-OUT9
+    AREA1 = 10      # R-OUT10
+    AREA2 = 11      # R-OUT11
+    TIM = 12        # R-OUT12
+    MOVE = 13       # R-OUT13
+    IN_POS = 14     # R-OUT14
+    TLC = 15        # R-OUT15
+
+# リモートI/Oの状態を一つ返す
+def get_one_status(response, bit_number):
+    #ドライバの出力のみを取得
+    driver_output = (response[3] << 8) + response[4]
+    # 目的の状態分だけ右シフトしてビット演算(&1)でマスク
+    result = (driver_output >> bit_number) & 1
+    # 結果を返す
+    return result
 
 def standby(term=0.02):
     time.sleep(term)
+
+def makequery_remote_io_access(qg, action):
+    query = qg.create_slave_address()
+    query += qg.create_function_code(action)
+    query += qg.create_data(action)
+    query += qg.create_crc16(query)
+    return query
+
+def makequery_direct_data_operation(qg, action):
+    return query
 
 def main():
     # シリアル通信インスタンスを生成
@@ -173,22 +210,37 @@ def main():
     sc.set_serial(client=arduino, port_type='Arduino',
                   baudrate=19200, parity='N', stopbits=1, timeout=None)
     sc.open_serial(arduino)
-    ### クエリ作成
+    ### クエリ作成インスタンス生成
     qg = QueryGeneration()
     ### ドライバ状態確認
+    function_data = READ_REGISTER
+    query = makequery_remote_io_access(qg, function_data)
+    # READY状態(READY=1)になるまで繰り返す
     while(True):
-        pass
-        if(True):
+        # クエリ送信
+        sc.write_serial(driver, query)
+        # 一定時間待機
+        standby()
+        # レスポンスを読む
+        response = sc.read_serial(driver, size=16)
+        # リモートI/OのREADY状態を確認する
+        ready = get_one_status(response, OutputStatus.READY)
+        # 一定時間待機
+        standby()
+        if(ready == 1):
+            # 準備完了なら準備ループを抜ける
             break
     # *** ループ開始 ***
-    while(True):
+    for _ in range(3):
+        print("for loop")
+        delay(1)
         ### センサ値取得
         ### クエリ作成
-        ### モーター動作
+        ### モーター動作(ダイレクトデータ運転)
         ### レスポンス確認
-        pass
+        break
     # *** ループ終了 ***
-
+    print("fin")
 
 if __name__ == "__main__":
     main()
