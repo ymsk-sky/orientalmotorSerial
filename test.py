@@ -57,6 +57,26 @@ def test():
     ser1.client.close()
     ser2.client.close()
 
+class ClassT():
+    def set_serial(self, ser, br):
+        print("set:", id(ser), br)
+        ser.baudrate = br
+
+
+def test2():
+    t1 = ClassT()
+    t2 = ClassT()
+
+    s1 = serial.Serial()
+    s2 = serial.Serial()
+
+    t1.set_serial(s1, 9600)
+    t2.set_serial(s2, 115200)
+
+    print(s1, id(s1))
+    print(s2, id(s2))
+
 if __name__ == "__main__":
     # main()
-    test()
+    # test()
+    test2()

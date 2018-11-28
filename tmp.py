@@ -32,5 +32,20 @@ def main():
 
     client.close()
 
+class A():
+    v = 0
+    def __init__(self, v):
+        self.v = v
+
+def test():
+    a1 = A(1)
+    a2 = A(2)
+
+    print(a1.v, id(a1.v))
+    a1.v = 5
+    print(a1.v, id(a1.v))
+    print(a2.v, id(a2.v))
+
 if __name__ == "__main__":
-    main()
+    # main()
+    test()
