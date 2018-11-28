@@ -95,7 +95,7 @@ class QueryGeneration():
         ##### データを返す
         if(function_code == self.READ_REGISTER):
             ##### リモートI/Oアクセス
-            # レジスタアドレス0007f, レジスタ数0001
+            # レジスタアドレス007f, レジスタ数0001
             return b"\x00\x7f\x00\x01"
         elif(function_code == self.WRITE_REGISTERS):
             ##### ダイレクトデータ運転
