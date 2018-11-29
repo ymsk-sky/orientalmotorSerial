@@ -162,6 +162,21 @@ class QueryGeneration():
         result = bytes.fromhex(tmp)
         return result
 
+class ProvisionOperation():
+    # 高速原点復帰運転
+    def high_speed_return_to_origin_operation(self, client):
+        # 運転開始
+        query = "\x01\x06\x00\x7d\x00\x10\x18\x1e"
+        client.write(query)
+        # 運転終了まで待機(クエリを送信しレスポンスのMOVEを確認)
+        while(True):
+            if(True):
+                break
+        # 運転終了
+        query = "\x01\x06\x00\x7d\x00\x00\x19\xd2"
+        client.write(query)
+        standby()
+
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
     M0_R = 0        # R-OUT0
