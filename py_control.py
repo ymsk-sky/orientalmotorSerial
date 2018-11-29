@@ -4,6 +4,7 @@ import os
 import serial
 from time import sleep
 
+import parameter as p
 
 class SerialCommunication():
     def __init__(self):
@@ -41,12 +42,16 @@ class SerialCommunication():
     def read_serial(self, client, size=1):
         return client.read(size)
 
+    def flush_input(self, client):
+        client.reset_input_buffer()
+
     def open_serial(self, client):
         print("### OPEN", client.port, "###")
         client.open()
 
     def close_serial(self, client):
         client.close()
+        print("### CLOSED", client.port, "###")
 
 
 # ファンクションコード設定
@@ -195,7 +200,14 @@ def makequery_remote_io_access(qg, action):
     query += qg.create_error_check(query)
     return query
 
-def makequery_direct_data_operation(qg, action):
+def makequery_direct_data_operation(qg, action, method=0, position=0, speed=0,
+                                    start_shift_rate=0, stop_rate=0):
+    query = qg.create_slave_address()
+    query += qg.create_function_code(action)
+    query += qg.create_data(action, method=method, position=position,
+                            speed=speed, start_shift_rate=start_shift_rate,
+                            stop_rate=stop_rate)
+    query += qg.create_error_check(query)
     return query
 
 def main():
@@ -216,37 +228,64 @@ def main():
     ### ドライバ状態確認
     function_data = READ_REGISTER
     query = makequery_remote_io_access(qg, function_data)
-    print(query)
     # READY状態(READY=1)になるまで繰り返す
     while(True):
         # クエリ送信
         sc.write_serial(driver, query)
-        # 一定時間待機
         standby()
         # レスポンスを読む
         response = sc.read_serial(driver, size=16)
-        print(response)
         # リモートI/OのREADY状態を確認する
         ready = get_one_status(response, OutputStatus.READY)
-        # 一定時間待機
         standby()
         if(ready == 1):
             # 準備完了なら準備ループを抜ける
             break
     # *** ループ開始 ***
-    for _ in range(300):
-        print("for loop")
-        standby()
+    print("--- for loop ---")
+    for _ in range(100):
         ### センサ値取得
-        # buffer詰まってる？
+        # 入力バッファをリセット
+        sc.flush_input(arduino)
+        # 生値（0~255の1byteコード）をシリアルリード
         raw_value = sc.read_serial(arduino, 1)
+        # int値に変換（0~255の値）
         value = int.from_bytes(raw_value, 'big')
-        print(value)
+        pos = int(value * (7500 / 256))
         ### クエリ作成
+        function_data = WRITE_REGISTERS
+        query = makequery_direct_data_operation(qg, function_data,
+                                                method=p.ABSOLUTE_POSITION,
+                                                position=pos,
+                                                speed=10000,
+                                                start_shift_rate=1000000,
+                                                stop_rate=1000000)
         ### モーター動作(ダイレクトデータ運転)
-        ### レスポンス確認
+        # クエリ送信
+        sc.write_serial(driver, query)
+        standby()
+        # レスポンスを読む
+        response = sc.read_serial(driver, size=16)
+        standby()
+        ### モーターが動作中か確認する
+        # クエリ作成
+        function_data = READ_REGISTER
+        query = makequery_remote_io_access(qg, function_data)
+        while(True):
+            # クエリ送信
+            sc.write_serial(driver, query)
+            standby()
+            # レスポンス確認する
+            response = sc.read_serial(driver, size=16)
+            # リモートI/OのMOVEが0か確認する
+            move = get_one_status(response, OutputStatus.MOVE)
+            standby()
+            if(move == 0):
+                break
     # *** ループ終了 ***
-    print("fin")
+    sc.close_serial(driver)
+    sc.close_serial(arduino)
+    print("##### FINISH #####")
 
 if __name__ == "__main__":
     main()
