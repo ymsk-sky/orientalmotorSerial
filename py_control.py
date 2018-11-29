@@ -6,6 +6,9 @@ from time import sleep
 
 import parameter as p
 
+### シリアル通信クラス
+# 基本機能のみ実装
+# TODO: エラー時の処理
 class SerialCommunication():
     def __init__(self):
         pass
@@ -68,6 +71,8 @@ function_code_data_list = [b"\x03", # 保持レジスタからの読み出し
                            b"\x10", # 複数の保持レジスタへの書き込み
                            b"\x17"] # 複数の保持レジスタの読み出し/書き込み
 
+### クエリ作成クラス
+# TODO: モーターが複数台になるとスレーブアドレスで管理するので実装
 class QueryGeneration():
     def __init__(self):
         pass
@@ -162,6 +167,9 @@ class QueryGeneration():
         result = bytes.fromhex(tmp)
         return result
 
+### 既存の制御
+# 呼び出すだけでクエリ作成から動作まですべて行なうように設計
+# TODO: 割り込みで使用する？
 class ProvisionOperation():
     # 高速原点復帰運転
     def high_speed_return_to_origin_operation(self, client):
