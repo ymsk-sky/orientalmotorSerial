@@ -169,20 +169,45 @@ class QueryGeneration():
 
 ### 既存の制御
 # 呼び出すだけでクエリ作成から動作まですべて行なうように設計
-# TODO: 割り込みで使用する？
-class ProvisionOperation():
+# TODO: 割り込みで使用する（予定）
+class ProvisionOperation(QueryGeneration):
+    def __init__(self):
+        pass
+
+    def __del__(self):
+        pass
+
     # 高速原点復帰運転
     def high_speed_return_to_origin_operation(self, client):
-        # 運転開始
-        query = "\x01\x06\x00\x7d\x00\x10\x18\x1e"
+        ### 運転開始
+        qg = QueryGeneration()
+        # クエリ作成
+        query = qg.create_slave_address()
+        query += b"\x06\x00\x7d\x00\x10"
+        query += qg.create_error_check(query)
+        # クエリ送信
         client.write(query)
-        # 運転終了まで待機(クエリを送信しレスポンスのMOVEを確認)
+        standby()
+        # レスポンスを読む
+        response = client.read(size=16)
+        standby()
+        ### 運転終了まで待機(クエリを送信しレスポンスのMOVEを確認)
+        query = makequery_remote_io_access(qg)
         while(True):
-            if(True):
+            client.write(query)
+            standby()
+            response = client.read(size=16)
+            move = get_one_status(response, OutputStatus.MOVE)
+            standby()
+            if(move == 0):
                 break
-        # 運転終了
-        query = "\x01\x06\x00\x7d\x00\x00\x19\xd2"
+        ### 運転終了
+        query = qg.create_slave_address()
+        query += "\x06\x00\x7d\x00\x00"
+        query += qg.create_error_check(query)
         client.write(query)
+        standby()
+        response = client.read(size=16)
         standby()
 
 class OutputStatus():
@@ -216,14 +241,15 @@ def get_one_status(response, bit_number):
 def standby(term=0.02):
     sleep(term)
 
-def makequery_remote_io_access(qg, action):
+def makequery_remote_io_access(qg, action=READ_REGISTER):
     query = qg.create_slave_address()
     query += qg.create_function_code(action)
     query += qg.create_data(action)
     query += qg.create_error_check(query)
     return query
 
-def makequery_direct_data_operation(qg, action, method=0, position=0, speed=0,
+def makequery_direct_data_operation(qg, action=WRITE_REGISTERS,
+                                    method=0, position=0, speed=0,
                                     start_shift_rate=0, stop_rate=0):
     query = qg.create_slave_address()
     query += qg.create_function_code(action)
