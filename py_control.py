@@ -57,6 +57,19 @@ class SerialCommunication():
         print("### CLOSED", client.port, "###")
 
 
+class SlaveMotor():
+    # スレーブアドレス一覧(仮)
+    BROADCAST = 0
+    ANKLE_R = 1
+    ANKLE_L = 2
+    VERTICAL_SWING_R = 3
+    VERTICAL_SWING_L = 4
+    LATERAL_SWING_R = 5
+    LATERAL_SWING_L = 6
+
+    slave_address_list = [b"\x00", b"\x01", b"\x02",
+                          b"\x03", b"\x04", b"\x05", b"\x06"]
+
 # ファンクションコード設定
 READ_REGISTER = 0
 WRITE_REGISTER = 1
@@ -81,9 +94,9 @@ class QueryGeneration():
         pass
 
     # スレーブアドレスを返す
-    def create_slave_address(self):
-        # TODO: モーターが単一のため未実装
-        # 複数台の制御になったら変更
+    def create_slave_address(self, slave=1):
+        # 0はブロードキャストのためデフォルトは1とする
+        SlaveMotor.slave_address_list[slave]
         return b"\x01"
 
     # ファンクションコードを返す
