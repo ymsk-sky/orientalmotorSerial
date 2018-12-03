@@ -19,5 +19,16 @@ def main():
     c = ChildA()
     c.child_a()
 
+def a():
+    response = b"\x01\x03\x04\x00\x00\x01\x7f\xba\x43"
+    temperature = ((response[3] << 24) + (response[4] << 16)
+                   + (response[5] << 8) + response[6]) / 10
+    return temperature
+
+def test():
+    ans = a()
+    print(ans, type(ans))
+
 if __name__ == "__main__":
-    main()
+    # main()
+    test()

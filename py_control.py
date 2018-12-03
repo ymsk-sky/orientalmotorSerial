@@ -223,6 +223,46 @@ class ProvisionOperation(QueryGeneration):
         response = client.read(size=16)
         standby()
 
+    # トルクモニタ
+    # 現在のトルクを、励磁最大静止トルクに対する割合で示す。
+    def get_torque_monitor(self, client):
+        # register address:
+        #  上位: 214(00D6h)
+        #  下位: 215(00D7h)
+        pass
+
+    # ドライバ温度
+    # 現在のドライバの温度を示す。(1 = Celsius 0.1 deg.)
+    def get_driver_temperature(self, client):
+        # register address: 上位: 248(00F8h), 下位: 249(00F9h)
+        qg = QueryGeneration()
+        query = qg.create_slave_address()
+        query += b"\x03\x00\xf8\x00\x02"
+        query += qg.create_error_check(query)
+        client.write(query)
+        standby()
+        response = client.read(size=16)
+        standby()
+        temperature = ((response[3] << 24) + (response[4] << 16)
+                       + (response[5] << 8) + response[6]) / 10
+        return temperature / 10
+
+    # モーター温度
+    # 現在のモーターの温度を示す。(1 = Celsius 0.1 deg.)
+    def get_motor_temperature(self, client):
+        # register address: 上位: 250(00FAh), 下位: 251(00FBh)
+        qg = QueryGeneration()
+        query = qg.create_slave_address()
+        query += b"\x03\x00\xfa\x00\x02"
+        query += qg.create_error_check(query)
+        client.write(query)
+        standby()
+        response = client.read(size=16)
+        standby()
+        temperature = ((response[3] << 24) + (response[4] << 16)
+                       + (response[5] << 8) + response[6]) / 10
+        return temperature
+
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
     M0_R = 0        # R-OUT0
