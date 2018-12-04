@@ -385,7 +385,7 @@ def main():
             break
     # *** ループ開始 ***
     print("--- for loop ---")
-    for _ in range(100):
+    for _ in range(300):
         ### センサ値取得
         # 入力バッファをリセット
         sc.flush_input(arduino)
