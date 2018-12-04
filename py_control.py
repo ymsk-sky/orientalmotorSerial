@@ -226,10 +226,22 @@ class ProvisionOperation(QueryGeneration):
     # トルクモニタ
     # 現在のトルクを、励磁最大静止トルクに対する割合で示す。
     def get_torque_monitor(self, client):
-        # register address:
-        #  上位: 214(00D6h)
-        #  下位: 215(00D7h)
-        pass
+        # register address: 上位: 214(00D6h), 下位: 215(00D7h)
+        qg = QueryGeneration()
+        query = qg.create_slave_address()
+        query += b"\x03\x00\xd6\x00\x02"
+        query += qg.create_error_check(query)
+        client.write(query)
+        standby()
+        response = client.read(size=16)
+        # response = b"\x01\x03\x04\x00\x00\x03\xe7\xba\x89" # 999
+        # レスポンスの詳細不明（おそらく1=0.1[%]）
+        percentage = ((response[3] << 24) + (response[4] << 16)
+                      + (response[5] << 8) + response[6]) / 10
+        print(response)
+        print(percentage)
+        standby()
+        return percentage
 
     # ドライバ温度
     # 現在のドライバの温度を示す。(1 = Celsius 0.1 deg.)
@@ -245,7 +257,7 @@ class ProvisionOperation(QueryGeneration):
         standby()
         temperature = ((response[3] << 24) + (response[4] << 16)
                        + (response[5] << 8) + response[6]) / 10
-        return temperature / 10
+        return temperature
 
     # モーター温度
     # 現在のモーターの温度を示す。(1 = Celsius 0.1 deg.)
