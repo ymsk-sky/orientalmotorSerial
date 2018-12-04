@@ -275,6 +275,34 @@ class ProvisionOperation(QueryGeneration):
                        + (response[5] << 8) + response[6]) / 10
         return temperature
 
+    # アラームのリセット
+    # 現在発生中のアラームを解除する
+    def reset_alerm(self, client):
+        # register address: 上位:384(0180h), 下位:385(0181h)
+        qg = QueryGeneration()
+        query = qg.create_slave_address()
+        query += b"\x10"     # ファンクションコード(複数書き込み)
+        query += b"\x01\x80" # 書き込みレジスタアドレス
+        query += b"\x00\x02" # 書き込みレジスタ数(上位と下位)
+        query += b"\x04"     # 書き込みバイト数(1レジスタで2バイトなのでレジスタ数の倍)
+        query += b"\x00\x01" # 値(1を書き込む)
+        query += qg.create_error_check(query)
+        client.write(query)
+        standby()
+        response = client.size(size=16)
+        standby(term=1)     # 余裕を持って1秒待機(修正可)
+        query = qg.create_slave_address()
+        query += b"\x10"     # ファンクションコード(複数書き込み)
+        query += b"\x01\x80" # 書き込みレジスタアドレス
+        query += b"\x00\x02" # 書き込みレジスタ数(上位と下位)
+        query += b"\x04"     # 書き込みバイト数(1レジスタで2バイトなのでレジスタ数の倍)
+        query += b"\x00\x00" # 値(0を書き込む)
+        query += qg.create_error_check(query)
+        client.write(query)
+        standby()
+        response = client.size(size=16)
+        standby()
+
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
     M0_R = 0        # R-OUT0
