@@ -121,14 +121,14 @@ class QueryGeneration():
             # 5. 方式
             result += method.to_bytes(4, "big")
             # 6. 位置
-            result += position.to_bytes(4, "big")
+            result += position.to_bytes(4, "big", signed=True)
             # 7. 速度
-            result += speed.to_bytes(4, "big")
+            result += speed.to_bytes(4, "big", signed=True)
             # 8. 起動・変速レート
-            result += start_shift_rate.to_bytes(4, "big")
+            result += start_shift_rate.to_bytes(4, "big", signed=True)
             # 9. 停止レート
-            result += stop_rate.to_bytes(4, "big")
-            # 10. 運転電流
+            result += stop_rate.to_bytes(4, "big", signed=True)
+            # 10. 運転電流(100.0[%]で固定)
             result += b"\x00\x00\x03\xe8"
             # 11. 反映トリガ
             result += b"\x00\x00\x00\x01"
