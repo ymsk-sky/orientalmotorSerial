@@ -191,11 +191,11 @@ class ProvisionOperation(QueryGeneration):
         pass
 
     # 高速原点復帰運転
-    def high_speed_return_to_origin_operation(self, client):
+    def high_speed_return_to_origin_operation(self, client, slave=1):
         ### 運転開始
         qg = QueryGeneration()
         # クエリ作成
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x06\x00\x7d\x00\x10"
         query += qg.create_error_check(query)
         # クエリ送信
@@ -215,7 +215,7 @@ class ProvisionOperation(QueryGeneration):
             if(move == 0):
                 break
         ### 運転終了
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += "\x06\x00\x7d\x00\x00"
         query += qg.create_error_check(query)
         client.write(query)
@@ -225,10 +225,10 @@ class ProvisionOperation(QueryGeneration):
 
     # トルクモニタ
     # 現在のトルクを、励磁最大静止トルクに対する割合で示す。
-    def get_torque_monitor(self, client):
+    def get_torque_monitor(self, client, slave=1):
         # register address: 上位: 214(00D6h), 下位: 215(00D7h)
         qg = QueryGeneration()
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x03\x00\xd6\x00\x02"
         query += qg.create_error_check(query)
         client.write(query)
@@ -245,10 +245,10 @@ class ProvisionOperation(QueryGeneration):
 
     # ドライバ温度
     # 現在のドライバの温度を示す。(1 = Celsius 0.1 deg.)
-    def get_driver_temperature(self, client):
+    def get_driver_temperature(self, client, slave=1):
         # register address: 上位: 248(00F8h), 下位: 249(00F9h)
         qg = QueryGeneration()
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x03\x00\xf8\x00\x02"
         query += qg.create_error_check(query)
         client.write(query)
@@ -261,10 +261,10 @@ class ProvisionOperation(QueryGeneration):
 
     # モーター温度
     # 現在のモーターの温度を示す。(1 = Celsius 0.1 deg.)
-    def get_motor_temperature(self, client):
+    def get_motor_temperature(self, client, slave=1):
         # register address: 上位: 250(00FAh), 下位: 251(00FBh)
         qg = QueryGeneration()
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x03\x00\xfa\x00\x02"
         query += qg.create_error_check(query)
         client.write(query)
@@ -277,10 +277,10 @@ class ProvisionOperation(QueryGeneration):
 
     # アラームのリセット
     # 現在発生中のアラームを解除する
-    def reset_alerm(self, client):
+    def reset_alerm(self, client, slave=1):
         # register address: 上位:384(0180h), 下位:385(0181h)
         qg = QueryGeneration()
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x10"     # ファンクションコード(複数書き込み)
         query += b"\x01\x80" # 書き込みレジスタアドレス
         query += b"\x00\x02" # 書き込みレジスタ数(上位と下位)
@@ -291,7 +291,7 @@ class ProvisionOperation(QueryGeneration):
         standby()
         response = client.size(size=16)
         standby(term=1)     # 余裕を持って1秒待機(修正可)
-        query = qg.create_slave_address()
+        query = qg.create_slave_address(slave=slave)
         query += b"\x10"     # ファンクションコード(複数書き込み)
         query += b"\x01\x80" # 書き込みレジスタアドレス
         query += b"\x00\x02" # 書き込みレジスタ数(上位と下位)
@@ -334,17 +334,17 @@ def get_one_status(response, bit_number):
 def standby(term=0.02):
     sleep(term)
 
-def makequery_remote_io_access(qg, action=READ_REGISTER):
-    query = qg.create_slave_address()
+def makequery_remote_io_access(qg, action=READ_REGISTER, slave=1):
+    query = qg.create_slave_address(slave=slave)
     query += qg.create_function_code(action)
     query += qg.create_data(action)
     query += qg.create_error_check(query)
     return query
 
-def makequery_direct_data_operation(qg, action=WRITE_REGISTERS,
+def makequery_direct_data_operation(qg, action=WRITE_REGISTERS, slave=1,
                                     method=0, position=0, speed=0,
                                     start_shift_rate=0, stop_rate=0):
-    query = qg.create_slave_address()
+    query = qg.create_slave_address(slave=slave)
     query += qg.create_function_code(action)
     query += qg.create_data(action, method=method, position=position,
                             speed=speed, start_shift_rate=start_shift_rate,
