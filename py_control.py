@@ -384,8 +384,9 @@ def main():
             # 準備完了なら準備ループを抜ける
             break
     # *** ループ開始 ***
+    # 2つのスレーブに交互に送信する
     print("--- for loop ---")
-    for _ in range(300):
+    for x in range(300):
         ### センサ値取得
         # 入力バッファをリセット
         sc.flush_input(arduino)
@@ -396,7 +397,8 @@ def main():
         pos = int(value * (7500 / 256))
         ### クエリ作成
         function_data = WRITE_REGISTERS
-        query = makequery_direct_data_operation(qg, function_data,
+        query = makequery_direct_data_operation(qg, action=function_data,
+                                                slave=slave_address_list[x%2]
                                                 method=p.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
@@ -412,7 +414,8 @@ def main():
         ### モーターが動作中か確認する
         # クエリ作成
         function_data = READ_REGISTER
-        query = makequery_remote_io_access(qg, function_data)
+        query = makequery_remote_io_access(qg, action=function_data,
+                                           slave=slave_address_list[x%2])
         while(True):
             # クエリ送信
             sc.write_serial(driver, query)
