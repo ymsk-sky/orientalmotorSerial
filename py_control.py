@@ -331,7 +331,7 @@ def get_one_status(response, bit_number):
     # 結果を返す
     return result
 
-def standby(term=0.02):
+def standby(term=0.06):
     sleep(term)
 
 def makequery_remote_io_access(qg, action=READ_REGISTER, slave=1):
@@ -395,11 +395,12 @@ def main():
         # int値に変換（0~255の値）
         value = int.from_bytes(raw_value, 'big')
         pos = int(value * (7500 / 256))
+        print(pos)
         ### クエリ作成
         function_data = WRITE_REGISTERS
         # TODO: slave addressの決定（分岐）処理が必要
         query = makequery_direct_data_operation(qg, action=function_data,
-                                                slave=x%2,
+                                                slave=x%2+1,
                                                 method=p.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
@@ -416,7 +417,7 @@ def main():
         # クエリ作成
         function_data = READ_REGISTER
         query = makequery_remote_io_access(qg, action=function_data,
-                                           slave=x%2)
+                                           slave=x%2+1)
         while(True):
             # クエリ送信
             sc.write_serial(driver, query)
