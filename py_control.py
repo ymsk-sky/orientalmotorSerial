@@ -96,8 +96,8 @@ class QueryGeneration():
     # スレーブアドレスを返す
     def create_slave_address(self, slave=1):
         # 0はブロードキャストのためデフォルトは1とする
-        SlaveMotor.slave_address_list[slave]
-        return b"\x01"
+        return SlaveMotor.slave_address_list[slave]
+        # return b"\x01"
 
     # ファンクションコードを返す
     def create_function_code(self, function_code_data):
@@ -399,7 +399,7 @@ def main():
         function_data = WRITE_REGISTERS
         # TODO: slave addressの決定（分岐）処理が必要
         query = makequery_direct_data_operation(qg, action=function_data,
-                                                slave=slave_address_list[x%2]
+                                                slave=SlaveMotor.slave_address_list[x%2],
                                                 method=p.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
@@ -416,7 +416,7 @@ def main():
         # クエリ作成
         function_data = READ_REGISTER
         query = makequery_remote_io_access(qg, action=function_data,
-                                           slave=slave_address_list[x%2])
+                                           slave=SlaveMotor.slave_address_list[x%2])
         while(True):
             # クエリ送信
             sc.write_serial(driver, query)
