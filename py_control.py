@@ -216,7 +216,7 @@ class ProvisionOperation(QueryGeneration):
                 break
         ### 運転終了
         query = qg.create_slave_address(slave=slave)
-        query += "\x06\x00\x7d\x00\x00"
+        query += b"\x06\x00\x7d\x00\x00"
         query += qg.create_error_check(query)
         client.write(query)
         standby()
