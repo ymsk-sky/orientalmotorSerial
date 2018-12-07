@@ -399,7 +399,7 @@ def main():
         function_data = WRITE_REGISTERS
         # TODO: slave addressの決定（分岐）処理が必要
         query = makequery_direct_data_operation(qg, action=function_data,
-                                                slave=SlaveMotor.slave_address_list[x%2],
+                                                slave=x%2,
                                                 method=p.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
@@ -416,7 +416,7 @@ def main():
         # クエリ作成
         function_data = READ_REGISTER
         query = makequery_remote_io_access(qg, action=function_data,
-                                           slave=SlaveMotor.slave_address_list[x%2])
+                                           slave=x%2)
         while(True):
             # クエリ送信
             sc.write_serial(driver, query)
