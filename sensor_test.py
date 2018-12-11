@@ -10,6 +10,11 @@ def set_serial(client):
     client.stopbits = serial.STOPBITS_ONE
     client.timeout = 0.1
 
+def print_val(response):
+    val_x = (response[0] << 8) + response[1]
+    val_y = (response[2] << 8) + response[3]
+    print(val_x, val_y)
+
 def main():
     client = serial.Serial()
     set_serial(client)
@@ -19,18 +24,12 @@ def main():
     time.sleep(2)   # waiting for reseting Arduino
     print("# START LOOP")
     # -- start serial communication --
-    for _ in range(3):
-        h = 255
-        r = 1
-        g = 55
-        b = 254
-        # v = (h.to_bytes(1, "big") + r.to_bytes(1, "big")
-        #      + g.to_bytes(1, "big") + b.to_bytes(1, "big"))
-        # client.write(v)
-        time.sleep(1)
-        res = client.read(size=16)
-        print(res)
-        time.sleep(1)
+    for _ in range(100):
+        client.write(b"\xFF")
+        time.sleep(0.02)
+        response = client.read(size=4)
+        print_val(response)
+        time.sleep(0.02)
     # -- -- -- -- -- -- -- -- -- -- --
     client.close()
 
