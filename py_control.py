@@ -365,7 +365,7 @@ def is_correct_head(head):
 
 def is_correct_checksum(response):
     checksum = response[-1]
-    data = checksum[:-1]
+    data = response[:-1]
     sum = 0
     for value in data:
         sum += value
