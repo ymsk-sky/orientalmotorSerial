@@ -424,41 +424,41 @@ def main():
     # ***** 制御開始（メインループ） *****
     for x in range(300):
         for address in SlaveMotor.connected_slave_list:
-        ### センサ値取得
-        sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
-        ### クエリ作成
-        function_data = WRITE_REGISTERS
-        # TODO: slave addressの決定（分岐）処理が必要
-        query = makequery_direct_data_operation(qg=qg, action=function_data,
-                                                slave=address,
-                                                method=param.ABSOLUTE_POSITION,
-                                                position=pos,
-                                                speed=10000,
-                                                start_shift_rate=1000000,
-                                                stop_rate=1000000)
-        ### モーター動作(ダイレクトデータ運転)
-        # クエリ送信
-        sc.write_serial(driver, query)
-        standby()
-        # レスポンスを読む
-        response = sc.read_serial(driver, size=16)
-        standby()
-        ### モーターが動作中か確認する
-        # クエリ作成
-        function_data = READ_REGISTER
-        query = makequery_remote_io_access(qg=qg, action=function_data,
-                                           slave=x%2+1)
-        while(True):
+            ### センサ値取得
+            sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
+            ### クエリ作成
+            function_data = WRITE_REGISTERS
+            # TODO: slave addressの決定（分岐）処理が必要
+            query = makequery_direct_data_operation(qg=qg, action=function_data,
+                                                    slave=address,
+                                                    method=param.ABSOLUTE_POSITION,
+                                                    position=pos,
+                                                    speed=10000,
+                                                    start_shift_rate=1000000,
+                                                    stop_rate=1000000)
+            ### モーター動作(ダイレクトデータ運転)
             # クエリ送信
             sc.write_serial(driver, query)
             standby()
-            # レスポンス確認する
+            # レスポンスを読む
             response = sc.read_serial(driver, size=16)
-            # リモートI/OのMOVEが0か確認する
-            move = get_one_status(response, OutputStatus.MOVE)
             standby()
-            if(move == 0):
-                break
+            ### モーターが動作中か確認する
+            # クエリ作成
+            function_data = READ_REGISTER
+            query = makequery_remote_io_access(qg=qg, action=function_data,
+                                               slave=x%2+1)
+            while(True):
+                # クエリ送信
+                sc.write_serial(driver, query)
+                standby()
+                # レスポンス確認する
+                response = sc.read_serial(driver, size=16)
+                # リモートI/OのMOVEが0か確認する
+                move = get_one_status(response, OutputStatus.MOVE)
+                standby()
+                if(move == 0):
+                    break
     # *** ループ終了 ***
     sc.close_serial(driver)
     sc.close_serial(arduino)
