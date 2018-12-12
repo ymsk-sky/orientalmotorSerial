@@ -6,6 +6,9 @@ from time import sleep
 
 import parameter as param
 
+head_value = 255
+correct_head = head_value.to_bytes(1, "big")
+
 ### シリアル通信クラス
 # 基本機能のみ実装
 # TODO: エラー時の処理
@@ -354,6 +357,21 @@ def makequery_direct_data_operation(qg, action=WRITE_REGISTERS, slave=1,
     query += qg.create_error_check(query)
     return query
 
+def is_correct_head(head):
+    pass
+
+def is_correct_check_sum(response):
+    pass
+
+def get_sensor_value_list(sc, client, which=b"\xFF"):
+    sc.write_serial(arduino, which)
+    standby()
+    head = client.read()
+    if(is_correct_head(head)):
+        response = client.read(size=size)
+        if(is_correct_check_sum(response)):
+            pass
+
 def main():
     # シリアル通信インスタンスを生成
     sc = SerialCommunication()
@@ -367,6 +385,7 @@ def main():
     sc.set_serial(client=arduino, port_type='Arduino',
                   baudrate=19200, parity='N', stopbits=1, timeout=None)
     sc.open_serial(arduino)
+    # standby(1)  # arduino初期化待ち
     ### クエリ作成インスタンス生成
     qg = QueryGeneration()
     ### ドライバ状態確認
@@ -388,23 +407,16 @@ def main():
             if(ready == 1):
                 break
     print("##### MOTORs ARE READY #####")
-    # *** ループ開始 ***
-    print("--- for loop ---")
+    # ***** 制御開始（メインループ） *****
     for x in range(300):
+        for address in SlaveMotor.connected_slave_list:
         ### センサ値取得
-        # 入力バッファをリセット
-        sc.flush_input(arduino)
-        # 生値（0~255の1byteコード）をシリアルリード
-        raw_value = sc.read_serial(arduino, 1)
-        # int値に変換（0~255の値）
-        value = int.from_bytes(raw_value, 'big')
-        pos = int(value * (7500 / 256))
-        print(pos)
+        sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
         ### クエリ作成
         function_data = WRITE_REGISTERS
         # TODO: slave addressの決定（分岐）処理が必要
         query = makequery_direct_data_operation(qg=qg, action=function_data,
-                                                slave=x%2+1,
+                                                slave=address,
                                                 method=param.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
