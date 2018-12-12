@@ -382,7 +382,9 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
     if(is_correct_head(head)):
         response = client.read(size=size)
         if(is_correct_checksum(response)):
-            pass
+            data = response[:-1]
+            for x in data:
+                pass
 
 def main():
     # シリアル通信インスタンスを生成
