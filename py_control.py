@@ -364,7 +364,16 @@ def is_correct_head(head):
         return False
 
 def is_correct_check_sum(response):
-    pass
+    checksum = response[-1]
+    data = checksum[:-1]
+    sum = 0
+    for value in data:
+        sum += value
+    sum &= 0xFF
+    if(sum == checksum):
+        return True
+    else:
+        return False
 
 def get_sensor_value_list(sc, client, which=b"\xFF"):
     sc.write_serial(arduino, which)
