@@ -363,7 +363,7 @@ def is_correct_head(head):
     else:
         return False
 
-def is_correct_check_sum(response):
+def is_correct_checksum(response):
     checksum = response[-1]
     data = checksum[:-1]
     sum = 0
@@ -381,7 +381,7 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
     head = client.read()
     if(is_correct_head(head)):
         response = client.read(size=size)
-        if(is_correct_check_sum(response)):
+        if(is_correct_checksum(response)):
             pass
 
 def main():
