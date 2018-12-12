@@ -58,7 +58,7 @@ class SerialCommunication():
 
 
 class SlaveMotor():
-    # スレーブアドレス一覧(仮)
+    # スレーブ一覧
     BROADCAST = 0
     ANKLE_R = 1
     ANKLE_L = 2
@@ -70,8 +70,7 @@ class SlaveMotor():
     slave_address_list = [b"\x00", b"\x01", b"\x02",
                           b"\x03", b"\x04", b"\x05", b"\x06"]
 
-    connected_slave_list = [slave_address_list[ANKLE_R],
-                            slave_address_list[ANKLE_L]]
+    connected_slave_list = [ANKLE_R, ANKLE_L]
 
 # ファンクションコード設定
 READ_REGISTER = 0
@@ -373,23 +372,23 @@ def main():
     ### ドライバ状態確認
     function_data = READ_REGISTER
     for address in SlaveMotor.connected_slave_list:
-        pass
-    query = makequery_remote_io_access(qg=qg, action=function_data, slave=1)
-    # READY状態(READY=1)になるまで繰り返す
-    while(True):
-        # クエリ送信
-        sc.write_serial(driver, query)
-        standby()
-        # レスポンスを読む
-        response = sc.read_serial(driver, size=16)
-        # リモートI/OのREADY状態を確認する
-        ready = get_one_status(response, OutputStatus.READY)
-        standby()
-        if(ready == 1):
-            # 準備完了なら準備ループを抜ける
-            break
+        query = makequery_remote_io_access(qg=qg,
+                                           action=function_data,
+                                           slave=address)
+        # READY状態(READY=1)になるまで繰り返す
+        while(True):
+            # クエリ送信
+            sc.write_serial(driver, query)
+            standby()
+            # レスポンスを読む
+            response = sc.read_serial(driver, size=16)
+            # リモートI/OのREADY状態を確認する
+            ready = get_one_status(response, OutputStatus.READY)
+            standby()
+            if(ready == 1):
+                break
+    print("##### MOTORs ARE READY #####")
     # *** ループ開始 ***
-    # 2つのスレーブに交互に送信する
     print("--- for loop ---")
     for x in range(300):
         ### センサ値取得
