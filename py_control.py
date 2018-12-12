@@ -358,7 +358,10 @@ def makequery_direct_data_operation(qg, action=WRITE_REGISTERS, slave=1,
     return query
 
 def is_correct_head(head):
-    pass
+    if(head == correct_head):
+        return True
+    else:
+        return False
 
 def is_correct_check_sum(response):
     pass
