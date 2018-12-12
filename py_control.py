@@ -4,7 +4,7 @@ import os
 import serial
 from time import sleep
 
-import parameter as p
+import parameter as param
 
 ### シリアル通信クラス
 # 基本機能のみ実装
@@ -69,6 +69,9 @@ class SlaveMotor():
 
     slave_address_list = [b"\x00", b"\x01", b"\x02",
                           b"\x03", b"\x04", b"\x05", b"\x06"]
+
+    connected_slave_list = [slave_address_list[ANKLE_R],
+                            slave_address_list[ANKLE_L]]
 
 # ファンクションコード設定
 READ_REGISTER = 0
@@ -369,7 +372,9 @@ def main():
     qg = QueryGeneration()
     ### ドライバ状態確認
     function_data = READ_REGISTER
-    query = makequery_remote_io_access(qg, function_data)
+    for address in SlaveMotor.connected_slave_list:
+        pass
+    query = makequery_remote_io_access(qg=qg, action=function_data, slave=1)
     # READY状態(READY=1)になるまで繰り返す
     while(True):
         # クエリ送信
@@ -399,9 +404,9 @@ def main():
         ### クエリ作成
         function_data = WRITE_REGISTERS
         # TODO: slave addressの決定（分岐）処理が必要
-        query = makequery_direct_data_operation(qg, action=function_data,
+        query = makequery_direct_data_operation(qg=qg, action=function_data,
                                                 slave=x%2+1,
-                                                method=p.ABSOLUTE_POSITION,
+                                                method=param.ABSOLUTE_POSITION,
                                                 position=pos,
                                                 speed=10000,
                                                 start_shift_rate=1000000,
@@ -416,7 +421,7 @@ def main():
         ### モーターが動作中か確認する
         # クエリ作成
         function_data = READ_REGISTER
-        query = makequery_remote_io_access(qg, action=function_data,
+        query = makequery_remote_io_access(qg=qg, action=function_data,
                                            slave=x%2+1)
         while(True):
             # クエリ送信
