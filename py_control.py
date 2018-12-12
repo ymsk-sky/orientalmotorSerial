@@ -385,6 +385,11 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
             data = response[:-1]
             for x in data:
                 pass
+            return
+        else:
+            return
+    else:
+        return
 
 def main():
     # シリアル通信インスタンスを生成
@@ -430,12 +435,9 @@ def main():
             function_data = WRITE_REGISTERS
             # TODO: slave addressの決定（分岐）処理が必要
             query = makequery_direct_data_operation(qg=qg, action=function_data,
-                                                    slave=address,
-                                                    method=param.ABSOLUTE_POSITION,
-                                                    position=pos,
-                                                    speed=10000,
-                                                    start_shift_rate=1000000,
-                                                    stop_rate=1000000)
+                slave=address, method=param.ABSOLUTE_POSITION,
+                position=pos, speed=10000,
+                start_shift_rate=1000000, stop_rate=1000000)
             ### モーター動作(ダイレクトデータ運転)
             # クエリ送信
             sc.write_serial(driver, query)
