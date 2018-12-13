@@ -380,7 +380,7 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
     standby()
     head = client.read()
     if(is_correct_head(head)):
-        response = client.read(size=size)
+        response = client.read(size=16)
         if(is_correct_checksum(response)):
             data = response[:-1]
             for x in data:
