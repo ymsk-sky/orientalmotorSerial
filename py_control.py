@@ -383,9 +383,13 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
         response = client.read(size=16)
         if(is_correct_checksum(response)):
             data = response[:-1]
-            for x in data:
-                pass
-            return
+            raw_val = (int.from_bytes(t1, "big") >> 1).to_bytes(len(t1), "big")
+            value_list = []
+            for x in range(len(raw_val)):
+                if(x%2 == 0):
+                    value = (raw_val[x] << 8) + raw_val[x+1]
+                    value_list.append(value)
+            return value_list
         else:
             return
     else:
@@ -428,39 +432,33 @@ def main():
     print("##### MOTORs ARE READY #####")
     # ***** 制御開始（メインループ） *****
     for x in range(300):
+        ready_slave_list = []
         for address in SlaveMotor.connected_slave_list:
-            ### センサ値取得
-            sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
-            ### クエリ作成
-            function_data = WRITE_REGISTERS
-            # TODO: slave addressの決定（分岐）処理が必要
-            query = makequery_direct_data_operation(qg=qg, action=function_data,
-                slave=address, method=param.ABSOLUTE_POSITION,
-                position=pos, speed=10000,
-                start_shift_rate=1000000, stop_rate=1000000)
-            ### モーター動作(ダイレクトデータ運転)
-            # クエリ送信
+            function_data = READ_REGISTER
+            query = makequery_remote_io_access(qg=qg,
+                                               action=function_data,
+                                               slave=address)
             sc.write_serial(driver, query)
             standby()
-            # レスポンスを読む
+            response = sc.read_serial(driver, size=16)
+            move = get_one_status(response, OutputStatus.MOVE)
+            standby()
+            if(move == 0):
+                ready_slave_list.append(adress)
+        for address in ready_slave_list:
+            ### センサ値取得
+            # 現在はデータは未使用
+            sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
+            function_data = WRITE_REGISTERS
+            query = makequery_direct_data_operation(qg=qg,
+                action=function_data,
+                slave=address, method=param.ABSOLUTE_POSITION,
+                position=5000*address, speed=5000*address,
+                start_shift_rate=1000000, stop_rate=1000000)
+            sc.write_serial(driver, query)
+            standby()
             response = sc.read_serial(driver, size=16)
             standby()
-            ### モーターが動作中か確認する
-            # クエリ作成
-            function_data = READ_REGISTER
-            query = makequery_remote_io_access(qg=qg, action=function_data,
-                                               slave=x%2+1)
-            while(True):
-                # クエリ送信
-                sc.write_serial(driver, query)
-                standby()
-                # レスポンス確認する
-                response = sc.read_serial(driver, size=16)
-                # リモートI/OのMOVEが0か確認する
-                move = get_one_status(response, OutputStatus.MOVE)
-                standby()
-                if(move == 0):
-                    break
     # *** ループ終了 ***
     sc.close_serial(driver)
     sc.close_serial(arduino)
