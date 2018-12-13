@@ -378,16 +378,16 @@ def is_correct_checksum(response):
 def get_sensor_value_list(sc, client, which=b"\xFF"):
     sc.write_serial(client, which)
     standby()
-    head = client.read()
+    head = sc.read_serial(client=client, size=1)
     if(is_correct_head(head)):
-        response = client.read(size=16)
+        response = sc.read_serial(client=client, size=16)
         if(is_correct_checksum(response)):
             data = response[:-1]
-            raw_val = (int.from_bytes(t1, "big") >> 1).to_bytes(len(t1), "big")
+            raw = (int.from_bytes(data, "big") >> 1).to_bytes(len(data), "big")
             value_list = []
-            for x in range(len(raw_val)):
+            for x in range(len(raw)):
                 if(x%2 == 0):
-                    value = (raw_val[x] << 8) + raw_val[x+1]
+                    value = (raw[x] << 8) + raw[x+1]
                     value_list.append(value)
             return value_list
         else:
@@ -451,7 +451,7 @@ def main():
         for address in ready_slave_list:
             ### センサ値取得
             # 現在はデータは未使用
-            # sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
+            sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
             print("GET SENSOR VALUE")
             function_data = WRITE_REGISTERS
             pos = 10000
