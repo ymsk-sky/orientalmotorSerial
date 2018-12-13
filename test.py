@@ -35,5 +35,5 @@ def test():
         print("checksum NG")
 
 if __name__ == "__main__":
-    # main()
-    test()
+    main()
+    # test()

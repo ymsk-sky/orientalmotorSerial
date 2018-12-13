@@ -376,7 +376,7 @@ def is_correct_checksum(response):
         return False
 
 def get_sensor_value_list(sc, client, which=b"\xFF"):
-    sc.write_serial(arduino, which)
+    sc.write_serial(client, which)
     standby()
     head = client.read()
     if(is_correct_head(head)):
@@ -408,7 +408,7 @@ def main():
     sc.set_serial(client=arduino, port_type='Arduino',
                   baudrate=19200, parity='N', stopbits=1, timeout=None)
     sc.open_serial(arduino)
-    # standby(1)  # arduino初期化待ち
+    standby(2)  # arduino初期化待ち
     ### クエリ作成インスタンス生成
     qg = QueryGeneration()
     ### ドライバ状態確認
@@ -431,7 +431,8 @@ def main():
                 break
     print("##### MOTORs ARE READY #####")
     # ***** 制御開始（メインループ） *****
-    for x in range(300):
+    for x in range(30):
+        print("LOOP HEAD")
         ready_slave_list = []
         for address in SlaveMotor.connected_slave_list:
             function_data = READ_REGISTER
@@ -444,16 +445,28 @@ def main():
             move = get_one_status(response, OutputStatus.MOVE)
             standby()
             if(move == 0):
-                ready_slave_list.append(adress)
+                print(address, "MOVE == 0")
+                ready_slave_list.append(address)
+        print("MOVE FIN")
         for address in ready_slave_list:
             ### センサ値取得
             # 現在はデータは未使用
-            sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
+            # sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
+            print("GET SENSOR VALUE")
             function_data = WRITE_REGISTERS
+            pos = 10000
+            spd = 10000
+            if(address==1):
+                pos = 10000
+                spd = 10000
+            else:
+                pos = 50000
+                spd = 5000
             query = makequery_direct_data_operation(qg=qg,
                 action=function_data,
-                slave=address, method=param.ABSOLUTE_POSITION,
-                position=5000*address, speed=5000*address,
+                slave=address,
+                method=param.RELATIVE_POSITION_BASED_ON_ORDER_POSITION,
+                position=pos, speed=spd,
                 start_shift_rate=1000000, stop_rate=1000000)
             sc.write_serial(driver, query)
             standby()
