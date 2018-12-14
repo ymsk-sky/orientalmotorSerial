@@ -52,12 +52,12 @@ class SerialCommunication():
         client.reset_input_buffer()
 
     def open_serial(self, client):
-        print("### OPEN", client.port, "###")
+        print("##### OPEN", client.port, "#####")
         client.open()
 
     def close_serial(self, client):
         client.close()
-        print("### CLOSED", client.port, "###")
+        print("##### CLOSED", client.port, "#####")
 
 
 class SlaveMotor():
@@ -432,7 +432,6 @@ def main():
     print("##### MOTORs ARE READY #####")
     # ***** 制御開始（メインループ） *****
     for x in range(30):
-        print("LOOP HEAD")
         ready_slave_list = []
         for address in SlaveMotor.connected_slave_list:
             function_data = READ_REGISTER
@@ -445,14 +444,11 @@ def main():
             move = get_one_status(response, OutputStatus.MOVE)
             standby()
             if(move == 0):
-                print(address, "MOVE == 0")
                 ready_slave_list.append(address)
-        print("MOVE FIN")
         for address in ready_slave_list:
             ### センサ値取得
             # 現在はデータは未使用
             sensor_value_list = get_sensor_value_list(sc=sc, client=arduino)
-            print("GET SENSOR VALUE")
             function_data = WRITE_REGISTERS
             pos = 10000
             spd = 10000
