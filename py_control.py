@@ -383,9 +383,12 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
         # 引数sizeの値はセンサ数で変化するので注意（要変更対応）
         response = sc.read_serial(client=client, size=5)
         if(is_correct_checksum(response)):
+            # チェックサムを取り除く
             data = response[:-1]
+            # 1ビット右シフトする(1ビット左シフトを元に戻す)
             raw = (int.from_bytes(data, "big") >> 1).to_bytes(len(data), "big")
             value_list = []
+            # 1センサに対して2byteなので2byteずつ取り出して値を形成する
             for x in range(len(raw)):
                 if(x%2 == 0):
                     value = (raw[x] << 8) + raw[x+1]
