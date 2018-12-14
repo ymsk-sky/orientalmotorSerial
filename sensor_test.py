@@ -12,7 +12,7 @@ head_value = 255
 correct_head = head_value.to_bytes(1, "big")
 
 def set_serial(client):
-    client.port = "/dev/tty.usbmodem1411"
+    client.port = "/dev/tty.usbmodem1421"
     client.baudrate = 19200
     client.parity = 'N'
     client.stopbits = serial.STOPBITS_ONE
