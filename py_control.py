@@ -380,7 +380,8 @@ def get_sensor_value_list(sc, client, which=b"\xFF"):
     standby()
     head = sc.read_serial(client=client, size=1)
     if(is_correct_head(head)):
-        response = sc.read_serial(client=client, size=16)
+        # 引数sizeの値はセンサ数で変化するので注意（要変更対応）
+        response = sc.read_serial(client=client, size=5)
         if(is_correct_checksum(response)):
             data = response[:-1]
             raw = (int.from_bytes(data, "big") >> 1).to_bytes(len(data), "big")
