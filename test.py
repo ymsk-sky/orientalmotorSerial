@@ -24,19 +24,47 @@ def test1():
     sc.close_serial(drv)
 
 
+# 電磁ブレーキステータスへのアクセス
 def test2():
-    head = b"\xFF"
-    if(head == b"\xFF"):
-        response = b"\x01\x11\x02\x22\x34"
-        if(response == b"\x01\x11\x02\x22\x34"):
-            data = response[:-1]
-            raw = (int.from_bytes(data, "big") >> 1).to_bytes(len(data), "big")
-            value_list = []
-            for x in range(len(raw)):
-                if(x%2 == 0):
-                    value = (raw[x] << 8) + raw[x+1]
-                    value_list.append(value)
-            print(value_list)
+    ### MBC: レジスタアドレス: 379(017Bh) bit9
+    client = serial.Serial()
+    set_serial(client)
+    client.open()
+    query = make_query()
+    while(True):
+        client.write(query)
+        time.sleep(0.02)
+        response = client.read(size=16)
+        time.sleep(0.02)
+        mbc = get_mbc_status(response)
+        print("MBC:", mbc)
+        time.sleep(0.1) # ディレイ
+    client.close()
+
+def get_mbc_status(r):
+    return (((r[3] << 8) + r[4]) >> 9) & 1
+
+def make_query():
+    query = b"\x01"                 # スレーブアドレス
+    query += b"\x03"                # ファンクションコード
+    query += b"\x01\x7b\x00\x01"    # データ
+    query += b"\xf5\xef"            # エラーチェック
+    return query
+
+def set_serial(c):
+    c.port = get_port()
+    c.baudrate = 115200
+    c.bytesize = 8
+    c.parity = 'E'
+    c.stopbits = 1
+    c.timeout = 0.01
+
+def get_port():
+    for file in os.listdir('/dev'):
+        if 'tty.usbserial' in file:
+            return '/dev/' + file
+    return
+
 if __name__ == "__main__":
     # test1()
     test2()
