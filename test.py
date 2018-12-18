@@ -31,20 +31,30 @@ def test2():
     set_serial(client)
     client.open()
     mbc_query = make_mbc_query()
-    for _ in range(10):
+    q = b"\x01\x03\x00\x7d\x00\x01\x14\x12" # 確認
+    for x in range(16):
+        c_on_query = make_c_on_query(x)
         client.write(mbc_query)
         time.sleep(0.02)
         response = client.read(size=16)
         time.sleep(0.02)
-        mbc = get_mbc_status(response)
-        print("MBC:", mbc)
-        time.sleep(0.1) # ディレイ
-    c_on_query = make_c_on_query()
-    for _ in range(10):
-        pass
+        # mbc = get_mbc_status(response)
+        # print("MBC:", mbc)
+        time.sleep(1) # ディレイ
+
+        client.write(c_on_query)
+        time.sleep(0.02)
+        response = client.read(size=16)
+        time.sleep(1) # ディレイ
+
+        client.write(q)
+        time.sleep(0.02)
+        response = client.read(size=16)
+        print_result(response)
+        time.sleep(1) # ディレイ
     client.close()
 
-def make_c_on_query():
+def make_c_on_query(x):
     # *** bit2 R-IN2(M2)をC-ONに書き換える
     query = b"\x01"                 # スレーブアドレス(1号機)
     query += b"\x06"                # ファンクションコード(06:1レジスタ書き込み)
@@ -52,9 +62,26 @@ def make_c_on_query():
     # レジスタアドレス: 125(007Dh)
     # 書き込む値: 4(0004h, 0000_0000_0000_0100b)
     # bit2へ1を書き込む(ONにする)
-    query += b"\x00\x7d\x00\x04"    # データ(007Dhに0004を書き込む)
-    query += b"\x18\x11"            # エラーチェック
+    query += b"\x00\x7d"    # データ(007Dhに0004を書き込む)
+    query += (1 << x).to_bytes(2, "big")
+    query += create_error_check(query)            # エラーチェック
     return query
+
+def create_error_check(query):
+    reg = 0xFFFF
+    for d in query:
+        t = reg ^ d
+        n = 0
+        while(n < 8):
+            if(t&1 ==1):
+                t >>= 1
+                n += 1
+                t = 0xA001 ^ t
+            else:
+                t >>= 1
+                n += 1
+        reg = t
+    return reg.to_bytes(2, "little")
 
 def get_mbc_status(r):
     return (((r[3] << 8) + r[4]) >> 9) & 1
@@ -99,7 +126,7 @@ def print_result(r):
     list = ["RV-POS", "FW-POS", "RV-JOG-P", "FW-JOG-P",
             "SSTART", "D-SEL2", "D-SEL1", "D-SEL0",
             "ALM-RST", "FREE", "STOP", "ZHOME",
-            "START", "M2", "M1", "M0"]
+            "START", "C-ON", "M1", "M0"]
     h = r[3]
     l = r[4]
     _h = bin(h)[2:].zfill(8)
@@ -111,7 +138,39 @@ def print_result(r):
         else:
             print("bit" + str(15-i) + "\t" + "%8s"%list[i] + "\t" + _l[i-8])
 
+def free():
+    c = serial.Serial()
+    set_serial(c)
+    c.open()
+    time.sleep(0.1)
+    c.write(b"\x01\x06\x00\x7d\x00\x44\x19\xe1")
+    time.sleep(0.02)
+    response = c.read(size=16)
+    T = 100
+    for x in range(T):
+        print("time:", T-x)
+        time.sleep(0.1)
+    c.write(b"\x01\x06\x00\x7d\x00\x00\x19\xd2")
+    time.sleep(0.02)
+    response = c.read(size=16)
+    time.sleep(0.02)
+    print("written")
+    c.close()
+
+def reset():
+    c = serial.Serial()
+    set_serial(c)
+    c.open()
+    time.sleep(0.1)
+    c.write(b"\x01\x06\x00\x7d\x00\x00\x19\xd2")
+    time.sleep(0.02)
+    c.read(size=16)
+    time.sleep(0.02)
+    c.close()
+
 if __name__ == "__main__":
     # test1()
     # test2()
-    test3()
+    # test3()
+    free()
+    # reset()
