@@ -157,20 +157,23 @@ def free():
     print("written")
     c.close()
 
-def reset():
+def reset(fg_reset):
     c = serial.Serial()
     set_serial(c)
     c.open()
     time.sleep(0.1)
-    c.write(b"\x01\x06\x00\x7d\x00\x00\x19\xd2")
+    if(fg_reset==1):
+        c.write(b"\x01\x06\x00\x7d\x00\x00\x19\xd2")
+    elif(fg_reset==0):
+        c.write(b"\x01\x06\x00\x7d\x00\x04\x18\x11")
     time.sleep(0.02)
     c.read(size=16)
     time.sleep(0.02)
     c.close()
 
 if __name__ == "__main__":
-    # test1()
+    # test1() # 原点復帰
     # test2()
     # test3()
-    free()
-    # reset()
+    # free()
+    reset(1)
