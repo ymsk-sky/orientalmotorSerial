@@ -98,3 +98,22 @@ TRIGGER_MAX = 1
 TRANSFER_DEFAULT = 0
 TRANSFER_MIN = 0
 TRANSFER_MAX = 1
+
+##### リモートI/O
+### 入力信号(ハイフンはアンダースコアに置換)
+M0 = 0          # R-IN0
+M1 = 1          # R-IN1
+M2 = 2          # R-IN2
+START = 3       # R-IN3
+ZHOME = 4       # R-IN4
+STOP = 5        # R-IN5
+FREE = 6        # R-IN6
+ALM_RST = 7     # R-IN7
+D_SEL0 = 8      # R-IN8
+D_SEL1 = 9      # R-IN9
+D_SEL2 = 10     # R-IN10
+SSTART = 11     # R-IN11
+FW_JOG_P = 12   # R-IN12
+RV_JOG_P = 13   # R-IN13
+FW_POS = 14     # R-IN14
+RV_POS = 15     # R-IN15
