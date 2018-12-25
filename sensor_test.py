@@ -69,5 +69,25 @@ def main():
     # -- -- -- -- -- -- -- -- -- -- --
     client.close()
 
+class Sensor():
+    R_FRONT = 0
+    L_FRONT = 1
+    R_BACK = 2
+    L_BACK = 3
+    X_DEGREE = 4
+    Y_DEGREE = 5
+    X_SPEED = 6
+    Y_SEPPD = 7
+
+def make_need_sensor_list_query():
+    s = Sensor()
+    needs = [s.R_FRONT, s.R_BACK, s.X_DEGREE, s.X_SPEED]
+    int_query = 0
+    for x in needs:
+        int_query += 1 << x
+    query = int_query.to_bytes(1, "big")
+    print(query, format(int.from_bytes(query, "big"), '08b'), int_query)
+
 if __name__ == "__main__":
-    main()
+    # main()
+    make_need_sensor_list_query()
