@@ -77,11 +77,17 @@ class Sensor():
     X_DEGREE = 4
     Y_DEGREE = 5
     X_SPEED = 6
-    Y_SEPPD = 7
+    Y_SPEED = 7
 
 def make_need_sensor_list_query():
+    client = serial.Serial()
+    set_serial(client)
+    client.open()
+    time.sleep(2)
+
     s = Sensor()
-    needs = [s.R_FRONT, s.R_BACK, s.X_DEGREE, s.X_SPEED]
+    needs = [s.R_FRONT, s.L_FRONT, s.R_BACK, s.L_BACK,
+             s.X_DEGREE, s.Y_DEGREE, s.X_SPEED, s.Y_SPEED]
     int_query = 0
     for x in needs:
         int_query += 1 << x
