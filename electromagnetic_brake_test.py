@@ -22,7 +22,8 @@ def main():
     client.open()
     # -------- 開始 --------
     # クエリ作成
-    q = b"\x00"
+    q_mbc = b"\x01\x03\x01\x7b\x00\x01\xf5\xef"
+    _mbc = b"\x01"
     # クエリ送信
     client.write(q)
     # 一定時間待機
