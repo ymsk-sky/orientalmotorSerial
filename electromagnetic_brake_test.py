@@ -104,6 +104,30 @@ def change_c_on_status(b):
     time.sleep(0.02)
     client.close()
 
+def make_query():
+    query = b"\x01"
+    # スレーブアドレス
+    ## ドライバにスイッチで割り当てる
+    ## 0はブロードキャスト(*このときクエリ送信してもレスポンスがないので注意)
+    # ファンクションコード
+    ## 使用するのは(読み出し, 書き込み, 複数書き込み)の3つ
+    # データ
+    ## レジスタアドレスや書き込み数（読み出し数）などで長さはNとなる
+    # エラーチェック
+    ## エラーチェック以外のクエリからエラーチェック(CRC-16/Modbus)を算出
+    ## CRC-16/Modbus計算は実装済み
+    return query
+
+def test_main():
+    # シリアル確立
+    client = serial.Serial()
+    set_serial(client)
+    client.open()
+    # ---------------- 開始 ----------------
+    query = make_query()
+    # ---------------- 終了 ----------------
+    client.close()
+
 if __name__ == "__main__":
     main()
     # change_c_on_status(1)
