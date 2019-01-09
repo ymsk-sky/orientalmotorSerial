@@ -105,5 +105,5 @@ def change_c_on_status(b):
     client.close()
 
 if __name__ == "__main__":
-    # main()
-    change_c_on_status(1)
+    main()
+    # change_c_on_status(1)
