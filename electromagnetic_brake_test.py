@@ -24,9 +24,11 @@ def move_status(r):
     return (((r[3] << 8) + r[4]) >> 13) & 1
 
 def main():
+    print("##### START")
     client = serial.Serial()
     set_serial(client)
     client.open()
+    print("##### SERIAL OPEN")
     # -------- 開始 --------
     # クエリ作成
     ## MBC(電磁ブレーキの状態)読み出し
@@ -36,52 +38,43 @@ def main():
     ## C-ONをOFF = 電磁ブレーキを保持
     q_keep = b"\x01\x06\x00\x7d\x00\x00\x19\xd2"
     ## ダイレクトデータ運転（例）
-    q_direct = b"\x01\x10\x00\x58\x00\x10\x20\
-                 \x00\x00\x00\x00\x00\x00\x00\x02\
-                 \x00\x00\x21\x34\x00\x00\x07\xd0\
-                 \x00\x00\x05\xdc\x00\x00\x05\xdc\
-                 \x00\x00\x03\xe8\x00\x00\x00\x01\
-                 \x1c\x08"
-    # クエリ送信
-    client.write(q)
-    # 一定時間待機
-    time.sleep(0.02)
-    # レスポンス受信
-    response = client.read(size=16)
-    # 一定時間待機
-    time.sleep(0.02)
-    # レスポンス処理
-    print(response)
-
+    q_direct = (b"\x01\x10\x00\x58\x00\x10\x20"
+                + b"\x00\x00\x00\x00\x00\x00\x00\x02"
+                + b"\x00\x00\x21\x34\x00\x00\x07\xd0"
+                + b"\x00\x00\x05\xdc\x00\x00\x05\xdc"
+                + b"\x00\x00\x03\xe8\x00\x00\x00\x01"
+                + b"\x1c\x08")
+    q_status = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
+    print("##### QUERY READY")
     ## MBC確認
-    while(True):
-        client.write(q_mbc)
-        time.sleep(0.02)
-        response = client.read(size=16)
-        time.sleep(0.02)
-        if(mbc_status(response) == 0):
-            break
+    # while(True):
+    #     client.write(q_mbc)
+    #     time.sleep(0.02)
+    #     response = client.read(size=16)
+    #     print(response)
+    #     time.sleep(0.02)
+    #     if(mbc_status(response) == 0):
+    #         break
+    print("##### INITED")
     ## 電磁ブレーキOFF
     client.write(q_release)
     time.sleep(0.02)
-    client.read(size=16)
-    time.sleep(0.02)
-    ## (temp) MBC 確認
-    client.write(q_mbc)
-    time.sleep(0.02)
     response = client.read(size=16)
     time.sleep(0.02)
-    if(mbc_status(response) == 1):
-        print("ok")
-        time.sleep(1)
+    print("brake off")
+    print(response)
+    time.sleep(1)
     ## ダイレクトデータ運転
     client.write(q_direct)
     time.sleep(0.02)
-    client.read(size=16)
+    response = client.read(size=16)
+    print("direct data operation")
+    print(response)
     time.sleep(0.02)
+    time.sleep(1)   # direct data operation now
     ## MOVE確認
     while(True):
-        client.write(q_)
+        client.write(q_status)
         time.sleep(0.02)
         response = client.read(size=16)
         time.sleep(0.02)
@@ -92,16 +85,25 @@ def main():
     time.sleep(0.02)
     client.read(size=16)
     time.sleep(0.02)
-    ## (temp) MBC 確認
-    client.write(q_mbc)
+    # -------- 終了 --------
+    client.close()
+    print("##### SERIAL CLOSE")
+
+
+def change_c_on_status(b):
+    client = serial.Serial("/dev/tty.usbserial-FT1GOG9N", 115200, 8, 'E', 1, 0.01)
+    if(b==0):
+        # 解放
+        q = b"\x01\x06\x00\x7d\x00\x04\x18\x11"
+    elif(b==1):
+        # 保持
+        q = b"\x01\x06\x00\x7d\x00\x00\x19\xd2"
+    client.write(q)
     time.sleep(0.02)
     response = client.read(size=16)
     time.sleep(0.02)
-    if(mbc_status(response) == 0):
-        print("ok2")
-        time.sleep(1)
-    # -------- 終了 --------
     client.close()
 
-if __name__ == "__name__":
-    main()
+if __name__ == "__main__":
+    # main()
+    change_c_on_status(1)

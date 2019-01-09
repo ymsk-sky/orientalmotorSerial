@@ -55,7 +55,7 @@ def test2():
     client.close()
 
 def make_c_on_query(x):
-    # *** bit2 R-IN2(M2)をC-ONに書き換える
+    # *** bit2 R-IN2(M2)をC-ONに書き換える(ID1のみ変更済み)
     query = b"\x01"                 # スレーブアドレス(1号機)
     query += b"\x06"                # ファンクションコード(06:1レジスタ書き込み)
     # ドライバ入力指令
