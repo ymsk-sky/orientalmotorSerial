@@ -34,10 +34,10 @@ class SlaveMotor():
     LATERAL_SWING_L = 6
 
 # モータードライバ一覧
-slave_list = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
+slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 # 接続済みのモータードライバ一覧
-connected_slave_list = [slave_list[SlaveMotor.ANKLE_R],
-                        slave_list[SlaveMotor.ANKLE_L]]
+connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
+                          slave_motors[SlaveMotor.ANKLE_L]]
 
 # マイコンのポートを取得する
 def get_port_micro():
@@ -79,7 +79,7 @@ def main():
     micro = serial.Serial(get_port_micro(), 19200)
     standby(2)  # Arduino初期化を待機
     # ドライバ状態確認（準備完了までループ）
-    for address in connected_slave_list:
+    for address in connected_slave_motors:
         query = remote_io_access(address)
         while(True):
             driver.write(query)
