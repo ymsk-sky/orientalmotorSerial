@@ -39,16 +39,26 @@ slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
                           slave_motors[SlaveMotor.ANKLE_L]]
 
+# 引数時間待機する
+def standby(term=0.06):
+    # 初期値はクエリ送信後にレスポンスを受信可能になるまで待機する時間
+    sleep(term)
+
 # マイコンのポートを取得する
 def get_port_micro():
     for file in os.listdir('/dev'):
         if 'tty.usbmodem' in file:
             return '/dev/' + file
 
-# 引数時間待機する
-def standby(term=0.06):
-    # 初期値はクエリ送信後にレスポンスを受信可能になるまで待機する時間
-    sleep(term)
+# マイコンに接続されたセンサ値を取得する
+## TODO: エラー発生の可能性(try囲み)
+def get_sensor_values(micro):
+    trigger = b"\xFF"
+    micro.write(trigger)
+    standby()
+    head = micro.read()
+    if(is_correct_head(head)):
+        pass
 
 # リモートI/Oの状態を一つ返す
 def get_one_status(response, bit_number):
@@ -92,7 +102,9 @@ def main():
     # メインループ -------- -------- -------- --------
     while(True):
         ## センサ値取得
+        sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
+        ### TODO: リストのリストを作成
         ## モーター動作
         ## モーターが全て動作可能になるまで待機
         pass
