@@ -101,6 +101,10 @@ def main():
                 break
     # メインループ -------- -------- -------- --------
     while(True):
+        # TODO: 要求仕様の変更, センサ値取得までループさせる
+        ## センサに要求クエリを送信する
+        micro.write(b"\xFF")
+        standby(0.1)
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
