@@ -87,7 +87,10 @@ def main():
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
                            parity='E', timeout=0.01)
     micro = serial.Serial(get_port_micro(), 19200)
-    standby(2)  # Arduino初期化を待機
+    while(True):
+        # Arduino初期化を待機
+        if(micro.read() == b"\x99"):
+            break;
     # ドライバ状態確認（準備完了までループ）
     for address in connected_slave_motors:
         query = remote_io_access(address)
