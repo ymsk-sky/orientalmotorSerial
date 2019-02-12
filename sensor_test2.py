@@ -41,11 +41,11 @@ def main():
         pass
     print("### ARDUINO IS READY ###")
     while(True):
-        ser.write("\x00")
+        ser.write(b"\x00")
         time.sleep(0.1)
-        response = ser.read(2+SENSOR_NUM)
+        response = ser.read(2+2*SENSOR_NUM)
         print_sensor_value(response)
-        time.sleep(0.5)
+        time.sleep(0.1)
     ser.close()
 
 if __name__ == "__main__":
