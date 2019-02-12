@@ -11,18 +11,29 @@ def print_sensor_value(response):
     # センサ値は1ビット左シフトしているため元に戻す必要がある
     # マイナス値の場合桁あふれでエラーになりそう
 
+    # レスポンスを読めてない問題
+    if(response == b""):
+        # レスポンスなし
+        print("response error")
+        return
+
     # ヘッダ確認
     head = response[0]
     if(head != 0xFF):
         # ヘッダが異なる
+        print("head error")
         return
+
     # チェックサム確認
     checksum = 0
     for x in range(SENSOR_NUM):
         checksum += response[1+2*x] + response[2+2*x]
+    checksum &= 0xFF
     if(checksum != response[-1]):
         # チェックサムが異なる
+        print("checksum error")
         return
+
     # 処理
     for i in range(SENSOR_NUM):
         higher = response[1+2*i]   # 1, 3, 5, 7, ...
