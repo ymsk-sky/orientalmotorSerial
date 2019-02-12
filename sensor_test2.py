@@ -3,10 +3,21 @@
 import serial
 import time
 
-def print_sensor_value(r):
+def print_sensor_value(response):
     # r = b"\xFF\x11\x22\xEE"
     # ヘッダー, センサ値(上位), センサ値(下位), チェックサム
-    pass
+    # センサ値は1ビット左シフトしているため元に戻す必要がある
+    # マイナス値の場合桁あふれでエラーになりそう
+    SENSOR_NUM = 1
+    head = response[0]
+    if(head != 0xFF):
+        # ヘッダが異なる
+        return
+    for i in range(SENSOR_NUM):
+        higher = response[1+2*i]   # 1, 3, 5, 7, ...
+        lower = response[2+2*i]    # 2, 4, 6, 8, ...
+        value = (higher << 8) + lower
+        print(value)
 
 def main():
     ser = serial.Serial()
