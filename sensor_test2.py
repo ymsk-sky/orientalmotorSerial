@@ -5,6 +5,9 @@ import time
 
 SENSOR_NUM = 1
 
+def s16(value):
+    return -(value & 0b1000000000000000) | (value & 0b0111111111111111)
+
 def print_sensor_value(response):
     # r = b"\xFF\x11\x22\xEE"
     # ヘッダー, センサ値(上位), センサ値(下位), チェックサム
@@ -41,7 +44,8 @@ def print_sensor_value(response):
         higher = response[1+2*i] >> 0   # 1, 3, 5, 7, ...
         lower = response[2+2*i] >> 0    # 2, 4, 6, 8, ...
         value = (higher << 8) + lower
-        print(value)
+
+        print(s16(value))
 
 def main():
     ser = serial.Serial()
