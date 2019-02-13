@@ -11,8 +11,6 @@ def s16(value):
 def print_sensor_value(response):
     # r = b"\xFF\x11\x22\xEE"
     # ヘッダー, センサ値(上位), センサ値(下位), チェックサム
-    # センサ値は1ビット左シフトしているため元に戻す必要がある
-    # マイナス値の場合桁あふれでエラーになりそう
 
     # レスポンスを読めてない問題
     if(response == b""):
@@ -39,12 +37,9 @@ def print_sensor_value(response):
 
     # 処理
     for i in range(SENSOR_NUM):
-        # 左シフトを右シフトで戻す
-        # 左シフトをしないため右シフトもしない
-        higher = response[1+2*i] >> 0   # 1, 3, 5, 7, ...
-        lower = response[2+2*i] >> 0    # 2, 4, 6, 8, ...
+        higher = response[1+2*i]   # 1, 3, 5, 7, ...
+        lower = response[2+2*i]    # 2, 4, 6, 8, ...
         value = (higher << 8) + lower
-
         print(s16(value))
 
 def main():
