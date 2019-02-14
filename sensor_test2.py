@@ -3,7 +3,7 @@
 import serial
 import time
 
-SENSOR_NUM = 1
+SENSOR_NUM = 2
 
 def s16(value):
     return -(value & 0b1000000000000000) | (value & 0b0111111111111111)
@@ -41,6 +41,7 @@ def print_sensor_value(response):
         lower = response[2+2*i]    # 2, 4, 6, 8, ...
         value = (higher << 8) + lower
         print(s16(value))
+    print("--------")
 
 def main():
     ser = serial.Serial()
