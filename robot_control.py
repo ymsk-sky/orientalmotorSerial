@@ -4,6 +4,9 @@ import os
 import serial
 from time import sleep
 
+# 使用するセンサ数
+SENSOR_NUM = 2
+
 # プリントデバッグするときはこの関数を使う
 def debug_print(text):
     print(text)
@@ -58,12 +61,36 @@ def get_port_micro():
 # マイコンに接続されたセンサ値を取得する
 ## TODO: エラー発生の可能性(try囲み)
 def get_sensor_values(micro):
-    trigger = b"\xFF"
-    micro.write(trigger)
-    standby()
-    head = micro.read()
-    if(is_correct_head(head)):
-        pass
+    ## センサに要求クエリを送信する
+    micro.write(b"\x00")
+    response = b""
+    while(len(response) < (2 + SENSOR_NUM*2)):
+        response += micro.read()
+    # ヘッダ確認
+    head = response[0]
+    if(head != 0xFF):
+        print("head error")
+        return
+    # チェックサム確認
+    checksum = 0
+    for i in range(SENSOR_NUM):
+        checksum += response[1+2*i] + response[2+2*i]
+    checksum &= 0xFF
+    if(checksum != response[-1]):
+        print("checksum error")
+        return
+    # センサ値の取り出し処理
+    values = []
+    for i in range(SENSOR_NUM):
+        higher = response[1+2*i]
+        lower = response[2+2*i]
+        value = (higher << 8) + lower
+        values.append(s16(value))
+    return values
+
+# 2の補数表現を変換
+def s16(value):
+    return -(value & 0b1000000000000000) | (value & 0b0111111111111111)
 
 # リモートI/Oの状態を一つ返す
 def get_one_status(response, bit_number):
@@ -113,14 +140,10 @@ def main():
     debug_print("### MOTOR DRIVERS READY")
     # メインループ -------- -------- -------- --------
     while(True):
-        # TODO: 要求仕様の変更, センサ値取得までループさせる
-        ## センサに要求クエリを送信する
-        micro.write(b"\x00")
-        standby(0.1)
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
-        ### TODO: リストのリストを作成
+        # calculate()
         ## モーター動作
         ## モーターが全て動作可能になるまで待機
         pass
