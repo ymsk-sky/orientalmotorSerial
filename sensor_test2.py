@@ -62,8 +62,22 @@ def main():
     ser.close()
 
 def continuous_reading_test():
-    pass
+    ser = serial.Serial()
+    ser.port = "/dev/tty.usbmodem1421"
+    ser.baudrate = 19200
+    ser.timeout = 0.01
+    ser.open()
+    while(ser.read() != b"\x99"):
+        pass
+    print("### ARDUINO IS READY ###")
+    while(True):
+        ser.write(b"\x00")
+        response = b""
+        while(len(response) < (2 + SENSOR_NUM*2)):
+            response += ser.read()
+        print_sensor_value(response)
+    ser.close()
 
 if __name__ == "__main__":
-    main()
+    # main()
     continuous_reading_test()
