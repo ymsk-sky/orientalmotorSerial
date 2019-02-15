@@ -61,5 +61,9 @@ def main():
         time.sleep(0.1)
     ser.close()
 
+def continuous_reading_test():
+    pass
+
 if __name__ == "__main__":
     main()
+    continuous_reading_test()
