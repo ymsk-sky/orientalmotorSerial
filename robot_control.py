@@ -4,6 +4,11 @@ import os
 import serial
 from time import sleep
 
+# プリントデバッグするときはこの関数を使う
+def debug_print(text):
+    print(text)
+    # pass
+
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
     M0_R = 0        # R-OUT0
@@ -81,9 +86,11 @@ def crc_error_check(query):
             crc_register >>= 1
             if overflow:
                 crc_register ^= 0xA001
+    # 結果は(上位→下位)の順
     return crc_register.to_bytes(2, 'little')
 
 def main():
+    debug_print("### START")
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
                            parity='E', timeout=0.01)
     micro = serial.Serial(get_port_micro(), 19200)
@@ -91,6 +98,7 @@ def main():
         # Arduino初期化を待機
         if(micro.read() == b"\x99"):
             break;
+    debug_print("### ARDUINO READY")
     # ドライバ状態確認（準備完了までループ）
     for address in connected_slave_motors:
         query = remote_io_access(address)
@@ -102,11 +110,12 @@ def main():
             standby()
             if(ready):
                 break
+    debug_print("### MOTOR DRIVERS READY")
     # メインループ -------- -------- -------- --------
     while(True):
         # TODO: 要求仕様の変更, センサ値取得までループさせる
         ## センサに要求クエリを送信する
-        micro.write(b"\xFF")
+        micro.write(b"\x00")
         standby(0.1)
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
