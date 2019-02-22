@@ -46,6 +46,8 @@ slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 # 接続済みのモータードライバ一覧
 connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
                           slave_motors[SlaveMotor.ANKLE_L]]
+# TODO: 電磁ブレーキの有無
+electromagnetic
 
 # 引数時間待機する
 def standby(term=0.06):
@@ -150,7 +152,10 @@ def main():
         ### 電磁ブレーキ状態確認
         ### 電磁ブレーキオフ
         ### ダイレクトデータ運転
+        direct_data_operation()
         ### 運転完了まで待機
+        while(1):
+            break
         ### 電磁ブレーキオン
         ## モーターが全て動作可能になるまで待機
     # -------- -------- -------- -------- --------
