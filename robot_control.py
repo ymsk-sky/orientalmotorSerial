@@ -46,8 +46,8 @@ slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 # 接続済みのモータードライバ一覧
 connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
                           slave_motors[SlaveMotor.ANKLE_L]]
-# TODO: 電磁ブレーキの有無
-electromagneticbrake = [True, False]
+# TODO: 電磁ブレーキ有のモータードライバ一覧
+electromagneticbrake = [slave_motors[SlaveMotor.ANKLE_R]]
 
 # 引数時間待機する
 def standby(term=0.06):
@@ -152,12 +152,13 @@ def main():
         ### td: センサ値を元に動作量を出力しクエリを作成
         queries = make_query(sensor_values) # 未実装
         ## モーター動作
-        ### 電磁ブレーキ有無確認
+        ### 電磁ブレーキ操作
+        #### 電磁ブレーキ有のモーターのみ動作
         for t in electromagneticbrake:
-            if(t):
-                pass
-        ### 電磁ブレーキ状態確認
-        ### 電磁ブレーキオフ
+            #### 電磁ブレーキ状態確認
+            #### 電磁ブレーキオフ(解放)
+            release_brake() # クエリは固定なのでエラーチェックも書き出しておく
+            pass
         ### ダイレクトデータ運転（共通）
         direct_data_operation()
         ### 運転完了まで待機
