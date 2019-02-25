@@ -47,7 +47,7 @@ slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
                           slave_motors[SlaveMotor.ANKLE_L]]
 # TODO: 電磁ブレーキの有無
-electromagnetic
+electromagnetic = [True, False]
 
 # 引数時間待機する
 def standby(term=0.06):
@@ -118,6 +118,10 @@ def crc_error_check(query):
     # 結果は(上位→下位)の順
     return crc_register.to_bytes(2, 'little')
 
+# TODO: 実装
+def make_query(sensor_values):
+    pass
+
 def main():
     debug_print("### START")
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
@@ -145,19 +149,25 @@ def main():
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
-        ### td: センサ値を元に動作量を出力
-        ### td: クエリを作成
+        ### td: センサ値を元に動作量を出力しクエリを作成
+        queries = make_query(sensor_values)
         ## モーター動作
         ### 電磁ブレーキ有無確認
+        if(electromagnetic[i]):
+            pass
         ### 電磁ブレーキ状態確認
         ### 電磁ブレーキオフ
-        ### ダイレクトデータ運転
+        ### ダイレクトデータ運転（共通）
         direct_data_operation()
         ### 運転完了まで待機
-        while(1):
+        while(True):
             break
         ### 電磁ブレーキオン
+        if(electromagnetic[i]):
+            pass
         ## モーターが全て動作可能になるまで待機
+        while(True):
+            break
     # -------- -------- -------- -------- --------
     # 終了
     driver.close()
