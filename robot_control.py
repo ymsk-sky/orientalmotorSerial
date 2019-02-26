@@ -157,6 +157,10 @@ def write_queries_only(driver, query):
             # レスポンスを受け取るまでループ
             response = driver.read(size=16)
 
+# ダイレクトデータ運転
+def direct_data_operation():
+    pass
+
 def main():
     debug_print("### START")
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
@@ -188,20 +192,16 @@ def main():
         queries = make_query(sensor_values) # 未実装
         ## モーター動作
         ### 電磁ブレーキ操作
-        #### 電磁ブレーキ有のモーターのみ動作
-        for t in electromagneticbrake:
-            #### 電磁ブレーキ状態確認
-            #### 電磁ブレーキオフ(解放)
-            release_brake(driver, t) # クエリは固定なのでエラーチェックも書き出しておく
-            pass
+        #### 電磁ブレーキ状態確認 TODO: orしなくてもいい？
+        #### 電磁ブレーキオフ(解放)
+        release_all_brakes(driver)
         ### ダイレクトデータ運転（共通）
-        direct_data_operation()
+        direct_data_operation(driver, queries)
         ### 運転完了まで待機
         while(True):
             break
-        ### 電磁ブレーキオン
-        if(electromagnetic[i]):
-            pass
+        ### 電磁ブレーキオン（保持）
+        retain_all_brakes(driver)
         ## モーターが全て動作可能になるまで待機
         while(True):
             break
