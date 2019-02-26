@@ -122,6 +122,25 @@ def crc_error_check(query):
 def make_query(sensor_values):
     pass
 
+# 電磁ブレーキの解放（C-ONをONにする）
+def release_brake(t):
+    query = t + b"\x06\x00\x7d\x00\x04"
+    query += crc_error_check(query)
+
+# 全ての電磁ブレーキを解放する（C-ONをONにする）
+def release_all_brakes():
+    q1 = b"\x01\x06\x00\x7d\x00\x04\x18\x11"
+    q2 = b"\x02\x06\x00\x7d\x00\x04\x18\x22"
+    q3 = b"\x03\x06\x00\x7d\x00\x04\x19\xf3"
+    q4 = b"\x04\x06\x00\x7d\x00\x04\x18\x44"
+
+# 全ての電磁ブレーキを保持する（C-ONをOFFにする）
+def retain_all_brakes():
+    q1 = b"\x01\x06\x00\x7d\x00\x00\x19\xd2"
+    q2 = b"\x02\x06\x00\x7d\x00\x00\x19\xe1"
+    q3 = b"\x03\x06\x00\x7d\x00\x00\x18\x30"
+    q4 = b"\x04\x06\x00\x7d\x00\x00\x19\x87"
+
 def main():
     debug_print("### START")
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
@@ -157,7 +176,7 @@ def main():
         for t in electromagneticbrake:
             #### 電磁ブレーキ状態確認
             #### 電磁ブレーキオフ(解放)
-            release_brake() # クエリは固定なのでエラーチェックも書き出しておく
+            release_brake(t) # クエリは固定なのでエラーチェックも書き出しておく
             pass
         ### ダイレクトデータ運転（共通）
         direct_data_operation()
