@@ -119,9 +119,18 @@ def crc_error_check(query):
     # 結果は(上位→下位)の順
     return crc_register.to_bytes(2, 'little')
 
-# TODO: 実装
-def make_query(sensor_values):
-    pass
+# モータードライバへ送信するクエリのリストを作成する
+def make_queries(sensor_values):
+    # 必要な動作のみのクエリのリストを作成する
+    queries = []
+    for i in connected_slave_motors:
+        q = i + get_params(i, sensor_values)
+        # TODO: get_paramsで動作なしの場合は空文字を返すようにする
+        if(q == i):
+            continue
+        q += crc_error_check(q)
+        queries.append(q)
+    return queries
 
 # 電磁ブレーキの解放（C-ONをONにする）
 def release_brake(driver, slave):
@@ -134,27 +143,27 @@ def release_brake(driver, slave):
 
 # 全ての電磁ブレーキを解放する（C-ONをONにする）
 def release_all_brakes(driver):
-    query = [b"\x01\x06\x00\x7d\x00\x04\x18\x11",
-             b"\x02\x06\x00\x7d\x00\x04\x18\x22",
-             b"\x03\x06\x00\x7d\x00\x04\x19\xf3",
-             b"\x04\x06\x00\x7d\x00\x04\x18\x44",
-             b"\x05\x06\x00\x7d\x00\x04\x19\x95",
-             b"\x06\x06\x00\x7d\x00\x04\x19\xa6"]
-    write_queries_only(driver, query)
+    queries = [b"\x01\x06\x00\x7d\x00\x04\x18\x11",
+               b"\x02\x06\x00\x7d\x00\x04\x18\x22",
+               b"\x03\x06\x00\x7d\x00\x04\x19\xf3",
+               b"\x04\x06\x00\x7d\x00\x04\x18\x44",
+               b"\x05\x06\x00\x7d\x00\x04\x19\x95",
+               b"\x06\x06\x00\x7d\x00\x04\x19\xa6"]
+    write_queries_only(driver, queries)
 
 # 全ての電磁ブレーキを保持する（C-ONをOFFにする）
 def retain_all_brakes(driver):
-    query = [b"\x01\x06\x00\x7d\x00\x00\x19\xd2",
-             b"\x02\x06\x00\x7d\x00\x00\x19\xe1",
-             b"\x03\x06\x00\x7d\x00\x00\x18\x30",
-             b"\x04\x06\x00\x7d\x00\x00\x19\x87",
-             b"\x05\x06\x00\x7d\x00\x00\x18\x56",
-             b"\x06\x06\x00\x7d\x00\x00\x18\x65"]
-    write_queries_only(driver, query)
+    queries = [b"\x01\x06\x00\x7d\x00\x00\x19\xd2",
+               b"\x02\x06\x00\x7d\x00\x00\x19\xe1",
+               b"\x03\x06\x00\x7d\x00\x00\x18\x30",
+               b"\x04\x06\x00\x7d\x00\x00\x19\x87",
+               b"\x05\x06\x00\x7d\x00\x00\x18\x56",
+               b"\x06\x06\x00\x7d\x00\x00\x18\x65"]
+    write_queries_only(driver, queries)
 
 # クエリリストを順次ドライバへ書き込む。レスポンスは廃棄
-def write_queries_only(driver, query):
-    for q in query:
+def write_queries_only(driver, queries):
+    for q in queries:
         driver.write(q)
         response = b""
         while(not response):
@@ -162,8 +171,8 @@ def write_queries_only(driver, query):
             response = driver.read(size=16)
 
 # ダイレクトデータ運転
-def direct_data_operation():
-    pass
+def direct_data_operation(driver, queries):
+    write_queries_only(driver, queries)
 
 def main():
     debug_print("### START")
@@ -193,13 +202,13 @@ def main():
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
         ### td: センサ値を元に動作量を出力しクエリを作成
-        queries = make_query(sensor_values) # 未実装
+        queries = make_queries(sensor_values) # 未実装
         ## モーター動作
         ### 電磁ブレーキ操作
         #### 電磁ブレーキ状態確認 TODO: orしなくてもいい？
         #### 電磁ブレーキオフ(解放)
         release_all_brakes(driver)
-        ### ダイレクトデータ運転（共通）
+        ### ダイレクトデータ運転
         direct_data_operation(driver, queries)
         ### 運転完了まで待機
         while(True):
