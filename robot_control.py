@@ -127,6 +127,10 @@ def make_query(sensor_values):
 def release_brake(driver, slave):
     query = slave + b"\x06\x00\x7d\x00\x04"
     query += crc_error_check(query)
+    driver.write(query)
+    response = b""
+    while(not response):
+        response = driver.read(size=16)
 
 # 全ての電磁ブレーキを解放する（C-ONをONにする）
 def release_all_brakes(driver):
