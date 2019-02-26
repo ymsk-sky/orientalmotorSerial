@@ -8,9 +8,10 @@ from time import sleep
 SENSOR_NUM = 2
 
 # プリントデバッグするときはこの関数を使う
-def debug_print(text):
-    print(text)
-    # pass
+def debug_print(*text):
+    for t in text:
+        print(t)
+        # pass
 
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
