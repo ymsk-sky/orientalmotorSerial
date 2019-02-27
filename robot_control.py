@@ -46,9 +46,16 @@ class SlaveMotor():
 slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
 # 接続済みのモータードライバ一覧
 connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
-                          slave_motors[SlaveMotor.ANKLE_L]]
+                          slave_motors[SlaveMotor.ANKLE_L],
+                          slave_motors[SlaveMotor.VERTICAL_SWING_R],
+                          slave_motors[SlaveMotor.VERTICAL_SWING_L],
+                          slave_motors[SlaveMotor.LATERAL_SWING_R],
+                          slave_motors[SlaveMotor.LATERAL_SWING_L]]
 # TODO: 電磁ブレーキ有のモータードライバ一覧
-electromagneticbrake = [slave_motors[SlaveMotor.ANKLE_R]]
+electromagneticbrake = [slave_motors[SlaveMotor.VERTICAL_SWING_R],
+                        slave_motors[SlaveMotor.VERTICAL_SWING_L],
+                        slave_motors[SlaveMotor.LATERAL_SWING_R],
+                        slave_motors[SlaveMotor.LATERAL_SWING_L]]
 
 # 引数時間待機する
 def standby(term=0.06):
