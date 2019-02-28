@@ -48,6 +48,7 @@ slave_motors = [BROADCAST,
                 LATERAL_SWING_R, LATERAL_SWING_L]
 
 # 接続済みのモータードライバ一覧
+"""
 connected_slave_motors = [ANKLE_R,
                           ANKLE_L,
                           VERTICAL_SWING_R,
@@ -60,6 +61,10 @@ electromagneticbrake = [VERTICAL_SWING_R,
                         VERTICAL_SWING_L,
                         LATERAL_SWING_R,
                         LATERAL_SWING_L]
+"""
+
+connected_slave_motors = [b"\x01", b"\x02"]
+electromagneticbrake = [b"\x01"]
 
 # 引数時間待機する
 def standby(term=0.06):
@@ -106,6 +111,29 @@ def get_sensor_values(micro):
 def s16(value):
     return -(value & 0b1000000000000000) | (value & 0b0111111111111111)
 
+# ダイレクトデータ運転のパラメータをセンサ値から決定する
+def get_params(slave, sensor_values):
+    # 固定
+    function_code = b"\x10"
+    head_address = b"\x00\x58"
+    register_num = b"\x00\x10"
+    byte_num = b"\x20"
+    data_no = b"\x00\x00\x00\x00"
+
+    current = b"\x00\x00\x03\xe8"
+    trigger = b"\x00\x00\x00\x01"
+    # センサ値から決定
+    method = b"\x00\x00\x00\x02"
+    position = b"\x00\x00\x21\x34"
+    speed = b"\x00\x00\x07\xd0"
+    start_rate = b"\x00\x00\x05\xdc"
+    stop_rate = b"\x00\x00\x05\xdc"
+    query = (slave + function_code + head_address + register_num + byte_num +
+             data_no + method + position + speed + start_rate + stop_rate +
+             current + trigger)
+    query += crc_error_check(query)
+    return query
+
 # リモートI/Oの状態を一つ返す
 def get_one_status(response, bit_number):
     driver_output = (response[3] << 8) + response[4]
@@ -134,10 +162,10 @@ def crc_error_check(query):
 def make_queries(sensor_values):
     # 必要な動作のみのクエリのリストを作成する
     queries = []
-    for i in connected_slave_motors:
-        q = i + get_params(i, sensor_values)
+    for slave in connected_slave_motors:
+        q = slave + get_params(i, sensor_values)
         # TODO: get_paramsで動作なしの場合は空文字を返すようにする
-        if(q == i):
+        if(q == slave):
             continue
         q += crc_error_check(q)
         queries.append(q)
