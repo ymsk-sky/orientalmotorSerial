@@ -221,12 +221,16 @@ def direct_data_operation(driver, queries):
 
 # TODO: すべての運転完了まで待機
 def wait_finishing_operation(driver):
+    """
     queries = [b"\x01\x03\x00\x7f\x00\x01\xb5\xd2",
                b"\x02\x03\x00\x7f\x00\x01\xb5\xe1",
                b"\x03\x03\x00\x7f\x00\x01\xb4\x30",
                b"\x04\x03\x00\x7f\x00\x01\xb5\x87",
                b"\x05\x03\x00\x7f\x00\x01\xb4\x56",
                b"\x06\x03\x00\x7f\x00\x01\xb4\x65"]
+    """
+    queries = [b"\x01\x03\x00\x7f\x00\x01\xb5\xd2",
+               b"\x02\x03\x00\x7f\x00\x01\xb5\xe1"]
     for q in queries:
         move = True
         while(move):
@@ -235,7 +239,8 @@ def wait_finishing_operation(driver):
             response = b""
             while(not response):
                 response = driver.read(size=16)
-            if get_one_status(response, OutputStatus.MOVE) == 0:
+            debug_print(response)
+            if(get_one_status(response, OutputStatus.MOVE) == 0):
                 move = False
 
 def main():
