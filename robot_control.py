@@ -67,7 +67,7 @@ connected_slave_motors = [b"\x01", b"\x02"]
 electromagneticbrake = [b"\x01"]
 
 # 引数時間待機する
-def standby(term=0.06):
+def standby(term=0.02):
     # 初期値はクエリ送信後にレスポンスを受信可能になるまで待機する時間
     sleep(term)
 
@@ -243,13 +243,13 @@ def main():
             break
     debug_print("### ARDUINO READY")
     # ドライバ状態確認（準備完了までループ）
-    for address in connected_slave_motors:
+    for address in [b"\x02"]:
         query = remote_io_access(address)
         while(True):
             driver.write(query)
             standby()
             response = driver.read(size=16)
-            ready = get_one_status(response, OutputSatus.READY)
+            ready = get_one_status(response, OutputStatus.READY)
             standby()
             if(ready):
                 break
