@@ -163,9 +163,9 @@ def make_queries(sensor_values):
     # 必要な動作のみのクエリのリストを作成する
     queries = []
     for slave in connected_slave_motors:
-        q = slave + get_params(i, sensor_values)
+        q = get_params(slave, sensor_values)
         # TODO: get_paramsで動作なしの場合は空文字を返すようにする
-        if(q == slave):
+        if(q == b""):
             continue
         q += crc_error_check(q)
         queries.append(q)
@@ -261,7 +261,7 @@ def main():
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
         ### td: センサ値を元に動作量を出力しクエリを作成
-        queries = make_queries(sensor_values) # 未実装
+        queries = make_queries(sensor_values)
         ## モーター動作
         ### 電磁ブレーキ操作
         #### 電磁ブレーキ状態確認 TODO: orしなくてもいい？
