@@ -227,7 +227,8 @@ def main():
                 break
     debug_print("### MOTOR DRIVERS READY")
     # メインループ -------- -------- -------- --------
-    while(True):
+    loop_number = 0 # tmp: ループ回数を制限
+    while(loop_number < 3):
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
@@ -248,6 +249,7 @@ def main():
         while(True):
             standby(1)  # tmp: 一周がわかるように1秒待機
             break
+        loop_number += 1    # tmp
     # -------- -------- -------- -------- --------
     # 終了
     driver.close()
