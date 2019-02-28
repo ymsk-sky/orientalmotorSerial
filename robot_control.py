@@ -185,6 +185,25 @@ def write_queries_only(driver, queries):
 def direct_data_operation(driver, queries):
     write_queries_only(driver, queries)
 
+# TODO: すべての運転完了まで待機
+def wait_finishing_operation(driver):
+    queries = [b"\x01\x03\x00\x7f\x00\x01\xb5\xd2",
+               b"\x02\x03\x00\x7f\x00\x01\xb5\xe1",
+               b"\x03\x03\x00\x7f\x00\x01\xb4\x30",
+               b"\x04\x03\x00\x7f\x00\x01\xb5\x87",
+               b"\x05\x03\x00\x7f\x00\x01\xb4\x56",
+               b"\x06\x03\x00\x7f\x00\x01\xb4\x65"]
+    for q in queries:
+        move = True
+        while(move):
+            # 要確認: 動作速くてクエリ送信に対してエラー吐きそう
+            driver.write(q)
+            response = b""
+            while(not response):
+                response = driver.read(size=16)
+            if get_one_status(response, OutputStatus.MOVE) == 0:
+                move = False
+
 def main():
     debug_print("### START")
     driver = serial.Serial('/dev/tty.usbserial-FT1GOG9N', 115200,
@@ -193,7 +212,7 @@ def main():
     while(True):
         # Arduino初期化を待機
         if(micro.read() == b"\x99"):
-            break;
+            break
     debug_print("### ARDUINO READY")
     # ドライバ状態確認（準備完了までループ）
     for address in connected_slave_motors:
@@ -222,12 +241,12 @@ def main():
         ### ダイレクトデータ運転
         direct_data_operation(driver, queries)
         ### 運転完了まで待機
-        while(True):
-            break
+        wait_finishing_operation(driver)
         ### 電磁ブレーキオン（保持）
         retain_all_brakes(driver)
         ## モーターが全て動作可能になるまで待機
         while(True):
+            standby(1)  # tmp: 一周がわかるように1秒待機
             break
     # -------- -------- -------- -------- --------
     # 終了
