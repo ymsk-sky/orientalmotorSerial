@@ -236,10 +236,14 @@ def wait_finishing_operation(driver):
         while(move):
             # 要確認: 動作速くてクエリ送信に対してエラー吐きそう
             driver.write(q)
+            standby()
             response = b""
             while(not response):
                 response = driver.read(size=16)
+                standby()
             debug_print(response)
+            if(len(response)<7):
+                continue
             if(get_one_status(response, OutputStatus.MOVE) == 0):
                 move = False
 
