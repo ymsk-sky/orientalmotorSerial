@@ -32,30 +32,34 @@ class OutputStatus():
     IN_POS = 14     # R-OUT14
     TLC = 15        # R-OUT15
 
-class SlaveMotor():
-    # スレーブ一覧
-    BROADCAST = 0
-    ANKLE_R = 1
-    ANKLE_L = 2
-    VERTICAL_SWING_R = 3
-    VERTICAL_SWING_L = 4
-    LATERAL_SWING_R = 5
-    LATERAL_SWING_L = 6
+# スレーブ一覧
+BROADCAST = b"\x00"
+ANKLE_R = b"\x01"
+ANKLE_L = b"\x02"
+VERTICAL_SWING_R = b"\x03"
+VERTICAL_SWING_L = b"\x04"
+LATERAL_SWING_R = b"\x05"
+LATERAL_SWING_L = b"\x06"
 
 # モータードライバ一覧
-slave_motors = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
+slave_motors = [BROADCAST,
+                ANKLE_R, ANKLE_L,
+                VERTICAL_SWING_R, VERTICAL_SWING_L,
+                LATERAL_SWING_R, LATERAL_SWING_L]
+
 # 接続済みのモータードライバ一覧
-connected_slave_motors = [slave_motors[SlaveMotor.ANKLE_R],
-                          slave_motors[SlaveMotor.ANKLE_L],
-                          slave_motors[SlaveMotor.VERTICAL_SWING_R],
-                          slave_motors[SlaveMotor.VERTICAL_SWING_L],
-                          slave_motors[SlaveMotor.LATERAL_SWING_R],
-                          slave_motors[SlaveMotor.LATERAL_SWING_L]]
-# TODO: 電磁ブレーキ有のモータードライバ一覧
-electromagneticbrake = [slave_motors[SlaveMotor.VERTICAL_SWING_R],
-                        slave_motors[SlaveMotor.VERTICAL_SWING_L],
-                        slave_motors[SlaveMotor.LATERAL_SWING_R],
-                        slave_motors[SlaveMotor.LATERAL_SWING_L]]
+connected_slave_motors = [ANKLE_R,
+                          ANKLE_L,
+                          VERTICAL_SWING_R,
+                          VERTICAL_SWING_L,
+                          LATERAL_SWING_R,
+                          LATERAL_SWING_L]
+
+# 電磁ブレーキ有のモータードライバ一覧
+electromagneticbrake = [VERTICAL_SWING_R,
+                        VERTICAL_SWING_L,
+                        LATERAL_SWING_R,
+                        LATERAL_SWING_L]
 
 # 引数時間待機する
 def standby(term=0.06):
