@@ -65,6 +65,7 @@ electromagneticbrake = [VERTICAL_SWING_R,
 
 connected_slave_motors = [b"\x01", b"\x02"]
 electromagneticbrake = [b"\x01"]
+normalbrake = [b"\x02"]
 
 # 引数時間待機する
 def standby(term=0.02):
@@ -258,7 +259,7 @@ def main():
             break
     debug_print("### ARDUINO READY")
     # ドライバ状態確認（準備完了までループ）
-    for address in [b"\x02"]:
+    for address in normalbrake:
         query = remote_io_access(address)
         while(True):
             driver.write(query)
