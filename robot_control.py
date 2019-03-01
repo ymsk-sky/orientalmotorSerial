@@ -167,8 +167,8 @@ def make_queries(sensor_values):
         # TODO: get_paramsで動作なしの場合は空文字を返すようにする
         if(q == b""):
             continue
-        q += crc_error_check(q)
         queries.append(q)
+    debug_print("direct_data_queries:", queries)
     return queries
 
 # 電磁ブレーキの解放（C-ONをONにする）
@@ -271,7 +271,7 @@ def main():
     # メインループ -------- -------- -------- --------
     loop_number = 0 # tmp: ループ回数を制限
     while(loop_number < 3):
-        debug_print(loop_number)
+        debug_print("LOOP:", loop_number)
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
@@ -282,6 +282,7 @@ def main():
         #### 電磁ブレーキ状態確認 TODO: orしなくてもいい？
         #### 電磁ブレーキオフ(解放)
         release_all_brakes(driver)
+        standby(1)
         ### ダイレクトデータ運転
         direct_data_operation(driver, queries)
         ### 運転完了まで待機
