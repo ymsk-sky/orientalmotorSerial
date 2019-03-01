@@ -9,9 +9,8 @@ SENSOR_NUM = 2
 
 # プリントデバッグするときはこの関数を使う
 def debug_print(*text):
-    for t in text:
-        print(t)
-        # pass
+    print(*text)
+    # pass
 
 class OutputStatus():
     # ドライバ出力状態一覧（ハイフンはアンダースコアに置換）
@@ -242,7 +241,6 @@ def wait_finishing_operation(driver):
             while(not response):
                 response = driver.read(size=16)
                 standby()
-            debug_print(response)
             if(len(response)<7):
                 continue
             if(get_one_status(response, OutputStatus.MOVE) == 0):
@@ -273,6 +271,7 @@ def main():
     # メインループ -------- -------- -------- --------
     loop_number = 0 # tmp: ループ回数を制限
     while(loop_number < 3):
+        debug_print(loop_number)
         ## センサ値取得
         sensor_values = get_sensor_values(micro)
         ## TODO: 動作量を計算
