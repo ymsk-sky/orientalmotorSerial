@@ -75,21 +75,19 @@ def main():
         # 動き終わるまで待機
         move_R = True
         move_L = True
-        while(move_R & move_L):
+        while(move_R or move_L):
             if(move_R):
-                ser.write(q.remote_io_access_R)
-                response = b""
-                while(not response):
-                    response = ser.read(16)
-                    if(stop_rotation(driver, response)):
-                        move_R = False
+                driver.write(q.remote_io_access_R)
+                sleep(0.02)
+                response = driver.read(16)
+                if(stop_rotation(driver, response)):
+                    move_R = False
             if(move_L):
-                ser.write(q.remote_io_access_L)
-                response = b""
-                while(not response):
-                    response = ser.read(16)
-                    if(stop_rotation(driver, response)):
-                        move_L = False
+                driver.write(q.remote_io_access_L)
+                sleep(0.02)
+                response = driver.read(16)
+                if(stop_rotation(driver, response)):
+                    move_L = False
 
         # 右を後ろ、左を前
         driver.write(q.direct_data_to_back_R)
@@ -102,21 +100,19 @@ def main():
         # 動き終わるまで待機
         move_R = True
         move_L = True
-        while(move_R & move_L):
+        while(move_R or move_L):
             if(move_R):
-                ser.write(q.remote_io_access_R)
-                response = b""
-                while(not response):
-                    response = ser.read(16)
-                    if(stop_rotation(driver, response)):
-                        move_R = False
+                driver.write(q.remote_io_access_R)
+                sleep(0.02)
+                response = driver.read(16)
+                if(stop_rotation(driver, response)):
+                    move_R = False
             if(move_L):
-                ser.write(q.remote_io_access_L)
-                response = b""
-                while(not response):
-                    response = ser.read(16)
-                    if(stop_rotation(driver, response)):
-                        move_L = False
+                driver.write(q.remote_io_access_L)
+                sleep(0.02)
+                response = driver.read(16)
+                if(stop_rotation(driver, response)):
+                    move_L = False
     # -------- -------- -------- --------
     print("## FINISH")
     driver.close()
