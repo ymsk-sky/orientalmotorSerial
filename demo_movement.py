@@ -121,5 +121,6 @@ def main():
     print("## FINISH")
     driver.close()
 
-if __nama__ == "__main__":
+
+if __name__ == "__main__":
     main()
