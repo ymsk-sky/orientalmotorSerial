@@ -63,6 +63,28 @@ def main():
     # -------- -------- -------- --------
     q = Queries()
 
+    # クエリリスト作成
+    direct_query_list = [[q.direct_data_to_front_R, q.direct_data_to_front_L],
+                         [q.direct_data_to_back_R, q.direct_data_to_back_L]]
+    remote_query_list = [q.remote_io_access_R, q.remote_io_access_L]
+
+    # 動作ループ
+    for _ in range(10):
+        for step in direct_query_list:
+            # 一回の動作分のクエリを送信
+            for query in step:
+                driver.write(query)
+                sleep(0.02)
+                response = driver.read(16)
+            # 動き終わるまで待機
+            for query in remote_query_list:
+                while(True):
+                    driver.write(query)
+                    sleep(0.02)
+                    response = driver.read(16)
+                    if(stop_rotation(driver, response)):
+                        break
+    """
     while(True):
         # 右を前、左を後ろ
         driver.write(q.direct_data_to_front_R)
@@ -113,6 +135,7 @@ def main():
                 response = driver.read(16)
                 if(stop_rotation(driver, response)):
                     move_L = False
+    """
     # -------- -------- -------- --------
     print("## FINISH")
     driver.close()
