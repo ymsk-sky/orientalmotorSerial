@@ -96,58 +96,6 @@ def main():
                     response = driver.read(16)
                     if(stop_rotation(driver, response)):
                         break
-    """
-    while(True):
-        # 右を前、左を後ろ
-        driver.write(q.direct_data_to_front_R)
-        sleep(0.02)
-        response = driver.read(16)
-        driver.write(q.direct_data_to_front_L)
-        sleep(0.02)
-        response = driver.read(16)
-
-        # 動き終わるまで待機
-        move_R = True
-        move_L = True
-        while(move_R or move_L):
-            if(move_R):
-                driver.write(q.remote_io_access_R)
-                sleep(0.02)
-                response = driver.read(16)
-                if(stop_rotation(driver, response)):
-                    move_R = False
-            if(move_L):
-                driver.write(q.remote_io_access_L)
-                sleep(0.02)
-                response = driver.read(16)
-                if(stop_rotation(driver, response)):
-                    move_L = False
-
-        # 右を後ろ、左を前
-        driver.write(q.direct_data_to_back_R)
-        sleep(0.02)
-        response = driver.read(16)
-        driver.write(q.direct_data_to_back_L)
-        sleep(0.02)
-        response = driver.read(16)
-
-        # 動き終わるまで待機
-        move_R = True
-        move_L = True
-        while(move_R or move_L):
-            if(move_R):
-                driver.write(q.remote_io_access_R)
-                sleep(0.02)
-                response = driver.read(16)
-                if(stop_rotation(driver, response)):
-                    move_R = False
-            if(move_L):
-                driver.write(q.remote_io_access_L)
-                sleep(0.02)
-                response = driver.read(16)
-                if(stop_rotation(driver, response)):
-                    move_L = False
-    """
     # -------- -------- -------- --------
     print("## FINISH")
     driver.close()
