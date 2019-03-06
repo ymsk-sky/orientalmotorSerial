@@ -7,41 +7,52 @@ from time import sleep
 # 変数の末尾にRorLをつけて左右判断
 # 反対でも左右対称の動きをするので前後の動作は問題なし・左右の動作は反転不可
 class Queries():
+    # CRC-16/Modbusによるエラーチェック
+    def crc_error_check(query):
+        crc_register = 0xFFFF
+        for data_byte in query:
+            crc_register ^= data_byte
+            for _ in range(8):
+                overflow = crc_register & 1 == 1
+                crc_register >>= 1
+                if overflow:
+                    crc_register ^= 0xA001
+        # 結果は(上位→下位)の順
+        return crc_register.to_bytes(2, 'little')
+
     remote_io_access_R = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
     remote_io_access_L = b"\x02\x03\x00\x7f\x00\x01\xb5\xe1"
 
-    direct_data_to_front_R = (b"\x01\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                              + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                              + b"\x00\x00\x04\xe2" # 位置 +1250
-                              + b"\x00\x00\xc3\x50" # 速度 50000
-                              + b"\x00\x00\x27\x10" # 起動・変速レート 10000
-                              + b"\x00\x00\x27\x10" # 停止レート 10000
-                              + b"\x00\x00\x03\xe8\x00\x00\x00\x01\x7a\x32")
+    base_direct_data_to_front = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+                                 + b"\x00\x00\x04\xe2" # 位置 +1250
+                                 + b"\x00\x00\xc3\x50" # 速度 50000
+                                 + b"\x00\x01\x86\xa0" # 起動・変速レート 100000
+                                 + b"\x00\x01\x86\xa0" # 停止レート 100000
+                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    direct_data_to_front_L = (b"\x02\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                              + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                              + b"\x00\x00\x04\xe2" # 位置 +1250
-                              + b"\x00\x00\xc3\x50" # 速度 50000
-                              + b"\x00\x00\x27\x10" # 起動・変速レート 10000
-                              + b"\x00\x00\x27\x10" # 停止レート 10000
-                              + b"\x00\x00\x03\xe8\x00\x00\x00\x01\x61\x86")
+    base_direct_data_to_back = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+                                + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+                                + b"\xff\xff\xfb\x1e" # 位置 -1250
+                                + b"\x00\x00\xc3\x50" # 速度 50000
+                                + b"\x00\x01\x86\xa0" # 起動・変速レート 100000
+                                + b"\x00\x01\x86\xa0" # 停止レート 100000
+                                + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    direct_data_to_back_R = (b"\x01\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                             + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                             + b"\xff\xff\xfb\x1e" # 位置 -1250
-                             + b"\x00\x00\xc3\x50" # 速度 50000
-                             + b"\x00\x00\x27\x10" # 起動・変速レート 10000
-                             + b"\x00\x00\x27\x10" # 停止レート 10000
-                             + b"\x00\x00\x03\xe8\x00\x00\x00\x01\x68\xfd")
+    ddtf_r = b"\x01" + base_direct_data_to_front
+    direct_data_to_front_R = ddtf_r + crc_error_check(ddtf_r)
 
-    direct_data_to_back_L = (b"\x02\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                             + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                             + b"\xff\xff\xfb\x1e" # 位置 -1250
-                             + b"\x00\x00\xc3\x50" # 速度 50000
-                             + b"\x00\x00\x27\x10" # 起動・変速レート 10000
-                             + b"\x00\x00\x27\x10" # 停止レート 10000
-                             + b"\x00\x00\x03\xe8\x00\x00\x00\x01\x73\x49")
+    ddtf_l = b"\x02" + base_direct_data_to_front
+    direct_data_to_front_L = ddtf_l + crc_error_check(ddtf_l)
 
+    ddtb_r = b"\x01" + base_direct_data_to_back
+    direct_data_to_back_R = ddtb_r + crc_error_check(ddtb_r)
+
+    ddtb_l = b"\x02" + base_direct_data_to_back
+    direct_data_to_back_L = ddtb_l + crc_error_check(ddtb_l)
+
+
+# 回転が停止状態かを確認
 def stop_rotation(ser, response):
     if(not (len(response) == 7)):
         ser.reset_input_buffer()
@@ -54,7 +65,7 @@ def stop_rotation(ser, response):
         return True
 
 def main():
-    motor_list = [b"\x01", b"\x02", b"\x03", b"\x04"]
+    # motor_list = [b"\x01", b"\x02", b"\x03", b"\x04"]
     driver = serial.Serial(port = '/dev/tty.usbserial-FT1GOG9N',
                            baudrate = 115200,
                            parity = 'E',
@@ -69,13 +80,14 @@ def main():
     remote_query_list = [q.remote_io_access_R, q.remote_io_access_L]
 
     # 動作ループ
-    for _ in range(10):
+    for _ in range(3):
         for step in direct_query_list:
             # 一回の動作分のクエリを送信
             for query in step:
                 driver.write(query)
                 sleep(0.02)
                 response = driver.read(16)
+                print(response)
             # 動き終わるまで待機
             for query in remote_query_list:
                 while(True):
