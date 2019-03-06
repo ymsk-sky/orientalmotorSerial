@@ -25,18 +25,18 @@ class Queries():
 
     base_direct_data_to_front = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
                                  + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                 + b"\x00\x00\x04\xe2" # 位置 +1250
-                                 + b"\x00\x00\xc3\x50" # 速度 50000
-                                 + b"\x00\x01\x86\xa0" # 起動・変速レート 100000
-                                 + b"\x00\x01\x86\xa0" # 停止レート 100000
+                                 + (1250).to_bytes(4, "big", signed=True) # 位置
+                                 + (50000).to_bytes(4, "big") # 速度
+                                 + (100000).to_bytes(4, "big") # 起動・変速レート
+                                 + (100000).to_bytes(4, "big") # 停止レート
                                  + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
     base_direct_data_to_back = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                + b"\xff\xff\xfb\x1e" # 位置 -1250
-                                + b"\x00\x00\xc3\x50" # 速度 50000
-                                + b"\x00\x01\x86\xa0" # 起動・変速レート 100000
-                                + b"\x00\x01\x86\xa0" # 停止レート 100000
+                                + (-1250).to_bytes(4, "big", signed=True) # 位置
+                                + (50000).to_bytes(4, "big") # 速度
+                                + (100000).to_bytes(4, "big") # 起動・変速レート
+                                + (100000).to_bytes(4, "big") # 停止レート
                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
     ddtf_r = b"\x01" + base_direct_data_to_front
