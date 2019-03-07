@@ -39,17 +39,17 @@ class Queries():
                                  + (100000).to_bytes(4, "big") # 停止レート
                                  + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    ddtf_r = b"\x01" + base_direct_data_to_plus
-    direct_data_to_plus_R = ddtf_r + crc_error_check(ddtf_r)
+    ddtp_r = b"\x01" + base_direct_data_to_plus
+    direct_data_to_plus_R = ddtp_r + crc_error_check(ddtp_r)
 
-    ddtf_l = b"\x02" + base_direct_data_to_plus
-    direct_data_to_plus_L = ddtf_l + crc_error_check(ddtf_l)
+    ddtp_l = b"\x02" + base_direct_data_to_plus
+    direct_data_to_plus_L = ddtp_l + crc_error_check(ddtp_l)
 
-    ddtb_r = b"\x01" + base_direct_data_to_minus
-    direct_data_to_minus_R = ddtb_r + crc_error_check(ddtb_r)
+    ddtm_r = b"\x01" + base_direct_data_to_minus
+    direct_data_to_minus_R = ddtm_r + crc_error_check(ddtm_r)
 
-    ddtb_l = b"\x02" + base_direct_data_to_minus
-    direct_data_to_minus_L = ddtb_l + crc_error_check(ddtb_l)
+    ddtm_l = b"\x02" + base_direct_data_to_minus
+    direct_data_to_minus_L = ddtm_l + crc_error_check(ddtm_l)
 
 
 # 回転が停止状態かを確認
