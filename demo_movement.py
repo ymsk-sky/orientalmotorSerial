@@ -23,33 +23,33 @@ class Queries():
     remote_io_access_R = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
     remote_io_access_L = b"\x02\x03\x00\x7f\x00\x01\xb5\xe1"
 
-    base_direct_data_to_front = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                 + (1250).to_bytes(4, "big", signed=True) # 位置
-                                 + (50000).to_bytes(4, "big") # 速度
-                                 + (100000).to_bytes(4, "big") # 起動・変速レート
-                                 + (100000).to_bytes(4, "big") # 停止レート
-                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
-
-    base_direct_data_to_back = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+    base_direct_data_to_plus = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                + (-1250).to_bytes(4, "big", signed=True) # 位置
+                                + (1250).to_bytes(4, "big", signed=True) # 位置
                                 + (50000).to_bytes(4, "big") # 速度
                                 + (100000).to_bytes(4, "big") # 起動・変速レート
                                 + (100000).to_bytes(4, "big") # 停止レート
                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    ddtf_r = b"\x01" + base_direct_data_to_front
-    direct_data_to_front_R = ddtf_r + crc_error_check(ddtf_r)
+    base_direct_data_to_minus = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+                                 + (-1250).to_bytes(4, "big", signed=True) # 位置
+                                 + (50000).to_bytes(4, "big") # 速度
+                                 + (100000).to_bytes(4, "big") # 起動・変速レート
+                                 + (100000).to_bytes(4, "big") # 停止レート
+                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    ddtf_l = b"\x02" + base_direct_data_to_front
-    direct_data_to_front_L = ddtf_l + crc_error_check(ddtf_l)
+    ddtf_r = b"\x01" + base_direct_data_to_plus
+    direct_data_to_plus_R = ddtf_r + crc_error_check(ddtf_r)
 
-    ddtb_r = b"\x01" + base_direct_data_to_back
-    direct_data_to_back_R = ddtb_r + crc_error_check(ddtb_r)
+    ddtf_l = b"\x02" + base_direct_data_to_plus
+    direct_data_to_plus_L = ddtf_l + crc_error_check(ddtf_l)
 
-    ddtb_l = b"\x02" + base_direct_data_to_back
-    direct_data_to_back_L = ddtb_l + crc_error_check(ddtb_l)
+    ddtb_r = b"\x01" + base_direct_data_to_minus
+    direct_data_to_minus_R = ddtb_r + crc_error_check(ddtb_r)
+
+    ddtb_l = b"\x02" + base_direct_data_to_minus
+    direct_data_to_minus_L = ddtb_l + crc_error_check(ddtb_l)
 
 
 # 回転が停止状態かを確認
@@ -75,8 +75,8 @@ def main():
     q = Queries()
 
     # クエリリスト作成
-    direct_query_list = [[q.direct_data_to_front_R, q.direct_data_to_front_L],
-                         [q.direct_data_to_back_R, q.direct_data_to_back_L]]
+    direct_query_list = [[q.direct_data_to_plus_R, q.direct_data_to_plus_L],
+                         [q.direct_data_to_minus_R, q.direct_data_to_minus_L]]
     remote_query_list = [q.remote_io_access_R, q.remote_io_access_L]
 
     # 動作ループ
