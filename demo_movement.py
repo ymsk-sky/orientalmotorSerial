@@ -20,37 +20,58 @@ class Queries():
         # 結果は(上位→下位)の順
         return crc_register.to_bytes(2, 'little')
 
-    remote_io_access_R = b"\x01\x03\x00\x7f\x00\x01\xb5\xd2"
-    remote_io_access_L = b"\x02\x03\x00\x7f\x00\x01\xb5\xe1"
+    # リモートI/Oアクセス
+    ria = b"\x03\x00\x7f\x00\x01"
+    remote_io_access_1 = b"\x01" + ria + crc_error_check(b"\x01" + ria)
+    remote_io_access_2 = b"\x02" + ria + crc_error_check(b"\x02" + ria)
+    remote_io_access_3 = b"\x03" + ria + crc_error_check(b"\x03" + ria)
+    remote_io_access_4 = b"\x04" + ria + crc_error_check(b"\x04" + ria)
+    remote_io_access_5 = b"\x05" + ria + crc_error_check(b"\x05" + ria)
+    remote_io_access_6 = b"\x06" + ria + crc_error_check(b"\x06" + ria)
 
-    base_direct_data_to_plus = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                                + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                + (1250).to_bytes(4, "big", signed=True) # 位置
-                                + (50000).to_bytes(4, "big") # 速度
-                                + (100000).to_bytes(4, "big") # 起動・変速レート
-                                + (100000).to_bytes(4, "big") # 停止レート
-                                + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
+    # ダイレクトデータ運転
+    dd_p = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+            + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+            + (1250).to_bytes(4, "big", signed=True) # 位置
+            + (50000).to_bytes(4, "big") # 速度
+            + (100000).to_bytes(4, "big") # 起動・変速レート
+            + (100000).to_bytes(4, "big") # 停止レート
+            + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    base_direct_data_to_minus = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
-                                 + b"\x00\x00\x00\x01" # 方式 絶対位置決め
-                                 + (-1250).to_bytes(4, "big", signed=True) # 位置
-                                 + (50000).to_bytes(4, "big") # 速度
-                                 + (100000).to_bytes(4, "big") # 起動・変速レート
-                                 + (100000).to_bytes(4, "big") # 停止レート
-                                 + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
+    dd_m = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+            + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+            + (-1250).to_bytes(4, "big", signed=True) # 位置
+            + (50000).to_bytes(4, "big") # 速度
+            + (100000).to_bytes(4, "big") # 起動・変速レート
+            + (100000).to_bytes(4, "big") # 停止レート
+            + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    ddtp_r = b"\x01" + base_direct_data_to_plus
-    direct_data_to_plus_R = ddtp_r + crc_error_check(ddtp_r)
+    ddp1 = b"\x01" + dd_p
+    direct_data_operation_p_1 = ddp1 + crc_error_check(ddp1)
+    ddm1 = b"\x01" + dd_m
+    direct_data_operation_m_1 = ddm1 + crc_error_check(ddm1)
+    ddp2 = b"\x02" + dd_p
+    direct_data_operation_p_2 = ddp2 + crc_error_check(ddp2)
+    ddm2 = b"\x02" + dd_m
+    direct_data_operation_m_2 = ddm2 + crc_error_check(ddm2)
 
-    ddtp_l = b"\x02" + base_direct_data_to_plus
-    direct_data_to_plus_L = ddtp_l + crc_error_check(ddtp_l)
+    ddp3 = b"\x03" + dd_p
+    direct_data_operation_p_3 = ddp3 + crc_error_check(ddp3)
+    ddm3 = b"\x03" + dd_m
+    direct_data_operation_m_3 = ddm3 + crc_error_check(ddm3)
+    ddp4 = b"\x04" + dd_p
+    direct_data_operation_p_4 = ddp4 + crc_error_check(ddp4)
+    ddm4 = b"\x04" + dd_m
+    direct_data_operation_m_4 = ddm4 + crc_error_check(ddm4)
 
-    ddtm_r = b"\x01" + base_direct_data_to_minus
-    direct_data_to_minus_R = ddtm_r + crc_error_check(ddtm_r)
-
-    ddtm_l = b"\x02" + base_direct_data_to_minus
-    direct_data_to_minus_L = ddtm_l + crc_error_check(ddtm_l)
-
+    ddp5 = b"\x05" + dd_p
+    direct_data_operation_p_5 = ddp5 + crc_error_check(ddp5)
+    ddm5 = b"\x05" + dd_m
+    direct_data_operation_m_5 = ddm5 + crc_error_check(ddm5)
+    ddp6 = b"\x06" + dd_p
+    direct_data_operation_p_6 = ddp6 + crc_error_check(ddp6)
+    ddm6 = b"\x06" + dd_m
+    direct_data_operation_m_6 = ddm6 + crc_error_check(ddm6)
 
 # 回転が停止状態かを確認
 def stop_rotation(ser, response):
@@ -75,9 +96,11 @@ def main():
     q = Queries()
 
     # クエリリスト作成
-    direct_query_list = [[q.direct_data_to_plus_R, q.direct_data_to_plus_L],
-                         [q.direct_data_to_minus_R, q.direct_data_to_minus_L]]
-    remote_query_list = [q.remote_io_access_R, q.remote_io_access_L]
+    direct_query_list = [[q.direct_data_operation_p_1,
+                          q.direct_data_operation_p_2],
+                         [q.direct_data_operation_m_1,
+                          q.direct_data_operation_m_2]]
+    remote_query_list = [q.remote_io_access_1, q.remote_io_access_2]
 
     # 動作ループ
     for _ in range(3):
