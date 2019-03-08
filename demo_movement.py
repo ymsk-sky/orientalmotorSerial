@@ -20,14 +20,14 @@ class Queries():
         # 結果は(上位→下位)の順
         return crc_register.to_bytes(2, 'little')
 
+    # スレーブアドレス一覧
+    slave_addresses = [b"\x01", b"\x02", b"\x03", b"\x04", b"\x05", b"\x06"]
+
     # リモートI/Oアクセス
     ria = b"\x03\x00\x7f\x00\x01"
-    remote_io_access_1 = b"\x01" + ria + crc_error_check(b"\x01" + ria)
-    remote_io_access_2 = b"\x02" + ria + crc_error_check(b"\x02" + ria)
-    remote_io_access_3 = b"\x03" + ria + crc_error_check(b"\x03" + ria)
-    remote_io_access_4 = b"\x04" + ria + crc_error_check(b"\x04" + ria)
-    remote_io_access_5 = b"\x05" + ria + crc_error_check(b"\x05" + ria)
-    remote_io_access_6 = b"\x06" + ria + crc_error_check(b"\x06" + ria)
+    remote_io_access = []
+    for add in slave_addresses:
+        remote_io_access.append(add + ria + crc_error_check(add + ria))
 
     # ダイレクトデータ運転
     dd_p = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
@@ -46,32 +46,15 @@ class Queries():
             + (100000).to_bytes(4, "big") # 停止レート
             + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
-    ddp1 = b"\x01" + dd_p
-    direct_data_operation_p_1 = ddp1 + crc_error_check(ddp1)
-    ddm1 = b"\x01" + dd_m
-    direct_data_operation_m_1 = ddm1 + crc_error_check(ddm1)
-    ddp2 = b"\x02" + dd_p
-    direct_data_operation_p_2 = ddp2 + crc_error_check(ddp2)
-    ddm2 = b"\x02" + dd_m
-    direct_data_operation_m_2 = ddm2 + crc_error_check(ddm2)
+    direct_data_operation_plus = []
+    for add in slave_addresses:
+        tmp = add + dd_p
+        direct_data_operation_plus.append(tmp + crc_error_check(tmp))
 
-    ddp3 = b"\x03" + dd_p
-    direct_data_operation_p_3 = ddp3 + crc_error_check(ddp3)
-    ddm3 = b"\x03" + dd_m
-    direct_data_operation_m_3 = ddm3 + crc_error_check(ddm3)
-    ddp4 = b"\x04" + dd_p
-    direct_data_operation_p_4 = ddp4 + crc_error_check(ddp4)
-    ddm4 = b"\x04" + dd_m
-    direct_data_operation_m_4 = ddm4 + crc_error_check(ddm4)
-
-    ddp5 = b"\x05" + dd_p
-    direct_data_operation_p_5 = ddp5 + crc_error_check(ddp5)
-    ddm5 = b"\x05" + dd_m
-    direct_data_operation_m_5 = ddm5 + crc_error_check(ddm5)
-    ddp6 = b"\x06" + dd_p
-    direct_data_operation_p_6 = ddp6 + crc_error_check(ddp6)
-    ddm6 = b"\x06" + dd_m
-    direct_data_operation_m_6 = ddm6 + crc_error_check(ddm6)
+    direct_data_operation_minus = []
+    for add in slave_addresses:
+        tmp = add + dd_m
+        direct_data_operation_minus.append(tmp + crc_error_check(tmp))
 
 # 回転が停止状態かを確認
 def stop_rotation(ser, response):
@@ -89,18 +72,18 @@ def main():
     # motor_list = [b"\x01", b"\x02", b"\x03", b"\x04"]
     driver = serial.Serial(port = '/dev/tty.usbserial-FT1GOG9N',
                            baudrate = 115200,
-                           parity = 'E',
+                           parity = serial.PARITY_EVEN,
                            timeout = 0.01)
     print("## START")
     # -------- -------- -------- --------
     q = Queries()
 
     # クエリリスト作成
-    direct_query_list = [[q.direct_data_operation_p_1,
-                          q.direct_data_operation_p_2],
-                         [q.direct_data_operation_m_1,
-                          q.direct_data_operation_m_2]]
-    remote_query_list = [q.remote_io_access_1, q.remote_io_access_2]
+    direct_query_list = [[q.direct_data_operation_plus[0],
+                          q.direct_data_operation_plus[1]],
+                         [q.direct_data_operation_minus[0],
+                          q.direct_data_operation_minus[1]]]
+    remote_query_list = [q.remote_io_access[0], q.remote_io_access[1]]
 
     # 動作ループ
     for _ in range(3):
