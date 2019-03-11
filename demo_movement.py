@@ -80,10 +80,17 @@ def main():
 
     # クエリリスト作成
     direct_query_list = [[q.direct_data_operation_plus[0],
-                          q.direct_data_operation_plus[1]],
+                          q.direct_data_operation_minus[1],
+                          q.direct_data_operation_plus[2],
+                          q.direct_data_operation_minus[3]],
                          [q.direct_data_operation_minus[0],
-                          q.direct_data_operation_minus[1]]]
-    remote_query_list = [q.remote_io_access[0], q.remote_io_access[1]]
+                          q.direct_data_operation_plus[1],
+                          q.direct_data_operation_minus[2],
+                          q.direct_data_operation_plus[3]]]
+    remote_query_list = [q.remote_io_access[0],
+                         q.remote_io_access[1],
+                         q.remote_io_access[2],
+                         q.remote_io_access[3]]
 
     # 動作ループ
     for _ in range(3):
