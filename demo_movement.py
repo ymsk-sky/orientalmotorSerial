@@ -56,6 +56,19 @@ class Queries():
         tmp = add + dd_m
         direct_data_operation_minus.append(tmp + crc_error_check(tmp))
 
+    # 高速原点復帰運転
+    hsrtoo_on = b"\x06\x00\x7d\x00\x10"
+    hsrtoo_off = b"\x06\x00\x7d\x00\x00"
+    high_speed_return_on = []
+    high_speed_return_off = []
+    for add in slave_addresses:
+        tmp_on = add + hsrtoo_on
+        tmp_off = add + hsrtoo_off
+        high_speed_return_on.append(tmp_on + crc_error_check(tmp_on))
+        high_speed_return_off.append(tmp_off + crc_error_check(tmp_off))
+
+
+
 # 回転が停止状態かを確認
 def stop_rotation(ser, response):
     if(not (len(response) == 7)):
@@ -82,15 +95,21 @@ def main():
     direct_query_list = [[q.direct_data_operation_plus[0],
                           q.direct_data_operation_minus[1],
                           q.direct_data_operation_plus[2],
-                          q.direct_data_operation_minus[3]],
+                          q.direct_data_operation_minus[3],
+                          q.direct_data_operation_plus[4],
+                          q.direct_data_operation_plus[5]],
                          [q.direct_data_operation_minus[0],
                           q.direct_data_operation_plus[1],
                           q.direct_data_operation_minus[2],
-                          q.direct_data_operation_plus[3]]]
+                          q.direct_data_operation_plus[3],
+                          q.direct_data_operation_minus[4],
+                          q.direct_data_operation_minus[5]]]
     remote_query_list = [q.remote_io_access[0],
                          q.remote_io_access[1],
                          q.remote_io_access[2],
-                         q.remote_io_access[3]]
+                         q.remote_io_access[3],
+                         q.remote_io_access[4],
+                         q.remote_io_access[5]]
 
     # 動作ループ
     for _ in range(3):
@@ -113,6 +132,25 @@ def main():
     print("## FINISH")
     driver.close()
 
+    # 高速原点復帰運転を行なう
+    def position_reset():
+        driver = serial.Serial(port = '/dev/tty.usbserial-FT1GOG9N',
+                               baudrate = 115200,
+                               parity = serial.PARITY_EVEN,
+                               timeout = 0.01)
+        q = Queries()
+        for query in q.high_speed_return_on:
+            driver.write(query)
+            sleep(0.02)
+            response = driver.read(16)
+        print("RETURNING...")
+        sleep(5)
+        for query in q.high_speed_return_off:
+            driver.write(query)
+            sleep(0.02)
+            response = driver.read(16)
+        print("RETURNED")
 
 if __name__ == "__main__":
     main()
+    # position_reset()
