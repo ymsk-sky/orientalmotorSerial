@@ -104,12 +104,7 @@ def main():
                           q.direct_data_operation_plus[3],
                           q.direct_data_operation_minus[4],
                           q.direct_data_operation_minus[5]]]
-    remote_query_list = [q.remote_io_access[0],
-                         q.remote_io_access[1],
-                         q.remote_io_access[2],
-                         q.remote_io_access[3],
-                         q.remote_io_access[4],
-                         q.remote_io_access[5]]
+
 
     # 動作ループ
     for _ in range(3):
@@ -121,7 +116,7 @@ def main():
                 response = driver.read(16)
                 print(response)
             # 動き終わるまで待機
-            for query in remote_query_list:
+            for query in q.remote_io_access:
                 while(True):
                     driver.write(query)
                     sleep(0.02)
