@@ -46,6 +46,14 @@ class Queries():
             + (100000).to_bytes(4, "big") # 停止レート
             + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
 
+    dd_b = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
+            + b"\x00\x00\x00\x01" # 方式 絶対位置決め
+            + (0).to_bytes(4, "big", signed=True) # 位置
+            + (50000).to_bytes(4, "big") # 速度
+            + (100000).to_bytes(4, "big") # 起動・変速レート
+            + (100000).to_bytes(4, "big") # 停止レート
+            + b"\x00\x00\x03\xe8\x00\x00\x00\x01")
+
     direct_data_operation_plus = []
     for add in slave_addresses:
         tmp = add + dd_p
@@ -55,6 +63,11 @@ class Queries():
     for add in slave_addresses:
         tmp = add + dd_m
         direct_data_operation_minus.append(tmp + crc_error_check(tmp))
+
+    direct_data_operation_base = []
+    for add in slave_addresses:
+        tmp = add + dd_b
+        direct_data_operation_base.append(tmp + crc_error_check(tmp))
 
     # 高速原点復帰運転
     hsrtoo_on = b"\x06\x00\x7d\x00\x10"
@@ -92,6 +105,7 @@ def main():
     q = Queries()
 
     # クエリリスト作成
+    # 前後動作
     direct_query_list = [[q.direct_data_operation_plus[0],
                           q.direct_data_operation_minus[1],
                           q.direct_data_operation_plus[2],
@@ -105,6 +119,22 @@ def main():
                           q.direct_data_operation_minus[4],
                           q.direct_data_operation_minus[5]]]
 
+    """
+    direct_query_list = [[],
+                         []]
+
+    direct_query_list = [[],
+                         []]
+
+    direct_query_list = [[],
+                         []]
+
+    direct_query_list = [[],
+                         []]
+
+    direct_query_list = [[],
+                         []]
+    """
 
     # 動作ループ
     for _ in range(3):
