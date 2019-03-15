@@ -56,10 +56,14 @@ class Queries():
     direct_data_operation_plus = []
     direct_data_operation_minus = []
     direct_data_operation_base = []
+    foot_plus = []
+    foot_minus = []
     for add in slave_addresses:
         direct_data_operation_plus.append(make_dd_query(add, 1250, 50000, 100000, 100000))
         direct_data_operation_minus.append(make_dd_query(add, -1250, 50000, 100000, 100000))
         direct_data_operation_base.append(make_dd_query(add, 0, 50000, 100000, 100000))
+        foot_plus.append(make_dd_query(add, 5000, 50000, 100000, 100000))
+        foot_minus.append(make_dd_query(add, -5000, 50000, 100000, 100000))
 
     """
     dd_p = (b"\x10\x00\x58\x00\x10\x20\x00\x00\x00\x00"
@@ -159,6 +163,14 @@ def main():
                            q.direct_data_operation_minus[DL]],
                           [q.direct_data_operation_base[DR],
                            q.direct_data_operation_base[DL]]]
+    direct_query_list1 = [[q.direct_data_operation_plus[FR],
+                           q.direct_data_operation_plus[FL],
+                           q.direct_data_operation_minus[DR],
+                           q.direct_data_operation_plus[DL]],
+                          [q.direct_data_operation_minus[FR],
+                           q.direct_data_operation_minus[FL],
+                           q.direct_data_operation_plus[DR],
+                           q.direct_data_operation_minus[DL]]]
     ### 擬似ふらつき動作
     direct_query_list2 = [[q.direct_data_operation_base[FL],
                            q.direct_data_operation_base[PL],
@@ -205,6 +217,11 @@ def main():
                            q.direct_data_operation_plus[DL]],
                           [q.direct_data_operation_minus[DR],
                            q.direct_data_operation_minus[DL]]]
+
+    direct_query_list4 = [[q.foot_plus[DR],
+                           q.foot_plus[DL]],
+                          [q.foot_minus[DR],
+                           q.foot_minus[DL]]]
     """
     direct_query_list4 = [[q.direct_data_operation_[],
                            q.direct_data_operation_[]],
@@ -218,7 +235,7 @@ def main():
     """
 
     # 動作ループ
-    for _ in range(3):
+    for _ in range(10):
         for step in direct_query_list1:
             # 一回の動作分のクエリを送信
             for query in step:
@@ -238,24 +255,24 @@ def main():
     print("## FINISH")
     driver.close()
 
-    # 高速原点復帰運転を行なう
-    def position_reset():
-        driver = serial.Serial(port = '/dev/tty.usbserial-FT1GOG9N',
-                               baudrate = 115200,
-                               parity = serial.PARITY_EVEN,
-                               timeout = 0.01)
-        q = Queries()
-        for query in q.high_speed_return_on:
-            driver.write(query)
-            sleep(0.02)
-            response = driver.read(16)
-        print("RETURNING...")
-        sleep(5)
-        for query in q.high_speed_return_off:
-            driver.write(query)
-            sleep(0.02)
-            response = driver.read(16)
-        print("RETURNED")
+# 高速原点復帰運転を行なう
+def position_reset():
+    driver = serial.Serial(port = '/dev/tty.usbserial-FT1GOG9N',
+                           baudrate = 115200,
+                           parity = serial.PARITY_EVEN,
+                           timeout = 0.01)
+    q = Queries()
+    for query in q.high_speed_return_on:
+        driver.write(query)
+        sleep(0.02)
+        response = driver.read(16)
+    print("RETURNING...")
+    sleep(5)
+    for query in q.high_speed_return_off:
+        driver.write(query)
+        sleep(0.02)
+        response = driver.read(16)
+    print("RETURNED")
 
 if __name__ == "__main__":
     main()
