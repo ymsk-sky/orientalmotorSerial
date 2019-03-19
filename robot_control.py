@@ -6,6 +6,10 @@ from time import sleep
 
 # 使用するセンサ数
 SENSOR_NUM = 2
+# 電磁ブレーキが解放されるまでの待機時間
+WAIT_RELEASE = 0.14
+# 電磁ブレーキが保持されるまでの待機時間
+WAIT_RETAIN = 0.05
 
 # プリントデバッグするときはこの関数を使う
 def debug_print(*text):
@@ -163,7 +167,7 @@ def make_queries(sensor_values):
     queries = []
     for slave in connected_slave_motors:
         q = get_params(slave, sensor_values)
-        # TODO: get_paramsで動作なしの場合は空文字を返すようにする
+        # TODO: get_paramsで動作なしの場合は空文字を返すように実装する
         if(q == b""):
             continue
         queries.append(q)
@@ -280,17 +284,14 @@ def main():
         #### 電磁ブレーキ状態確認 TODO: orしなくてもいい？
         #### 電磁ブレーキオフ(解放)
         release_all_brakes(driver)
-        standby(1)
+        standby(WAIT_RELEASE)
         ### ダイレクトデータ運転
         direct_data_operation(driver, queries)
         ### 運転完了まで待機
         wait_finishing_operation(driver)
         ### 電磁ブレーキオン（保持）
         retain_all_brakes(driver)
-        ## モーターが全て動作可能になるまで待機
-        while(True):
-            standby(1)  # tmp: 一周がわかるように1秒待機
-            break
+        standby(WAIT_RETAIN)
     # -------- -------- -------- -------- --------
     # 終了
     driver.close()

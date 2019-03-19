@@ -6,7 +6,7 @@ import time
 # ループ回数
 NUM = 2
 # 電磁ブレーキ待機時間
-WAIT_ON = 0.15
+WAIT_ON = 0.14
 WAIT_OFF = 0.05
 
 # 回転が停止状態かを確認
