@@ -78,7 +78,6 @@ def get_port_micro():
             return '/dev/' + file
 
 # マイコンに接続されたセンサ値を取得する
-## TODO: エラー発生の可能性(try囲み)
 def get_sensor_values(micro):
     ## センサに要求クエリを送信する
     micro.write(b"\x00")
